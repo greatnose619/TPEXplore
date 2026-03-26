@@ -5,11 +5,11 @@
  */
 
 // --- Global Chart.js configuration ---
-Chart.defaults.color = '#94a3b8'; // text-secondary
+Chart.defaults.color = '#8e8e8e'; // text-muted
 Chart.defaults.font.family = "'Inter', 'Noto Sans TC', sans-serif";
-Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
-Chart.defaults.plugins.tooltip.titleColor = '#f8fafc';
-Chart.defaults.plugins.tooltip.bodyColor = '#f8fafc';
+Chart.defaults.plugins.tooltip.backgroundColor = '#2f2f2f'; // bg-panel
+Chart.defaults.plugins.tooltip.titleColor = '#f9f9f9';
+Chart.defaults.plugins.tooltip.bodyColor = '#f9f9f9';
 Chart.defaults.plugins.tooltip.padding = 12;
 Chart.defaults.plugins.tooltip.cornerRadius = 8;
 Chart.defaults.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.1)';
@@ -17,11 +17,11 @@ Chart.defaults.plugins.tooltip.borderWidth = 1;
 
 // Colors matching CSS variables for Taiwan Market logic (Red = Up/Buy, Green = Down/Sell)
 const colors = {
-  up: '#ff4d4f',      // Red (Buy/Rise)
-  down: '#22c55e',    // Green (Sell/Fall)
+  up: '#ef4444',      // Softer Red (Buy/Rise)
+  down: '#10b981',    // Softer Green (Sell/Fall)
   grid: 'rgba(255, 255, 255, 0.05)',
-  lineFill: 'rgba(59, 130, 246, 0.1)',
-  lineBorder: '#3b82f6',
+  lineFill: 'rgba(255, 255, 255, 0.03)', // Neutral gray fill
+  lineBorder: '#a0a0a0', // Neutral gray border instead of blue
 };
 
 // --- Mock Data Generators ---

@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>台股匯整儀表板 | TAIEX Dashboard</title>
+  <title>TPEXplore</title>
   
-  <!-- SEO tags -->
   <meta name="description" content="即時追蹤台灣大盤走勢、外資買賣超動向以及全球重大財經新聞的匯整儀表板。">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
   
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,137 +18,117 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- External Stylesheet -->
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="dark-theme">
+<body class="gray-theme">
   
-  <div class="dashboard-container">
-    
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar glass-panel">
+  <!-- Minimalist Header -->
+  <header class="header">
+    <div class="header-container max-w-1440 mx-auto row-between">
       <div class="logo">
-        <i data-lucide="trending-up" class="logo-icon text-red"></i>
-        <span>TW Stock</span>
+        <i data-lucide="trending-up" class="logo-icon text-muted"></i>
+        <span>TPEXplore</span>
       </div>
-      <nav class="nav-menu">
-        <a href="#" class="nav-item active"><i data-lucide="layout-dashboard"></i> 總覽</a>
-        <a href="#" class="nav-item"><i data-lucide="bar-chart-3"></i> 台股大盤</a>
-        <a href="#" class="nav-item"><i data-lucide="building-2"></i> 三大法人</a>
-        <a href="#" class="nav-item"><i data-lucide="newspaper"></i> 財經新聞</a>
-        <a href="#" class="nav-item"><i data-lucide="settings"></i> 設定</a>
-      </nav>
       
-      <div class="market-status">
-        <div class="status-indicator live"></div>
-        <span>盤後市場已收盤</span>
+      <div class="search-bar panel">
+        <i data-lucide="search"></i>
+        <input type="text" placeholder="搜尋股票代號或名稱 (例如：2330)..." />
       </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
       
-      <!-- Top Header Row -->
-      <header class="header row-between gap">
-        <div class="search-bar glass-panel">
-          <i data-lucide="search"></i>
-          <input type="text" placeholder="搜尋股票代號或名稱 (例如：2330)..." />
+      <div class="header-actions">
+        <button class="icon-btn"><i data-lucide="bell"></i></button>
+        <div class="user-profile">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
         </div>
-        
-        <div class="header-actions">
-          <button class="icon-btn glass-panel"><i data-lucide="bell"></i></button>
-          <div class="user-profile">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User Avatar" />
-          </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content centered with max-width -->
+  <main class="main-content max-w-1440 mx-auto flex-col gap-lg">
+    
+    <!-- Top KPI row -->
+    <section class="metrics-grid">
+      <div class="metric-card panel flex-col">
+        <span class="metric-title">加權指數 (TAIEX)</span>
+        <div class="metric-value-row">
+          <h2 class="metric-value">20,123.45</h2>
+          <span class="badge red"><i data-lucide="arrow-up-right"></i> 142.1 (0.71%)</span>
         </div>
-      </header>
-
-      <!-- Dashboard Grid -->
-      <div class="grid-layout">
-        
-        <!-- Left Column: Key Metrics & Charts -->
-        <div class="col-left">
-          
-          <!-- Key Metrics Cards -->
-          <div class="metrics-grid">
-            <div class="metric-card glass-panel card-hover flex-col">
-              <span class="metric-title">加權指數 (TAIEX)</span>
-              <div class="metric-value-row">
-                <h2 class="metric-value">20,123.45</h2>
-                <span class="badge red"><i data-lucide="arrow-up-right"></i> 142.1 (0.71%)</span>
-              </div>
-            </div>
-            
-            <div class="metric-card glass-panel card-hover flex-col">
-              <span class="metric-title">外資買賣超金額 (億)</span>
-              <div class="metric-value-row">
-                <h2 class="metric-value text-red">+125.4</h2>
-                <span class="badge neutral">今日</span>
-              </div>
-            </div>
-            
-            <div class="metric-card glass-panel card-hover flex-col">
-              <span class="metric-title">大盤成交量 (億)</span>
-              <div class="metric-value-row">
-                <h2 class="metric-value">4,120</h2>
-                <span class="badge green"><i data-lucide="arrow-down-right"></i> -15%</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Taiex Main Chart -->
-          <div class="chart-container glass-panel card-hover">
-            <div class="card-header row-between">
-              <h3>台股大盤走勢 (TAIEX)</h3>
-              <div class="filters">
-                <button class="filter-btn">1天</button>
-                <button class="filter-btn">1週</button>
-                <button class="filter-btn active">1月</button>
-                <button class="filter-btn">1年</button>
-              </div>
-            </div>
-            <div class="canvas-wrapper">
-              <canvas id="taiexChart"></canvas>
-            </div>
-          </div>
-
-          <!-- Foreign Capital Chart -->
-          <div class="chart-container glass-panel card-hover">
-            <div class="card-header row-between">
-              <h3>外資買賣超追蹤 (單位：億台幣)</h3>
-              <div class="filters foreign-controls">
-                <button class="filter-btn active" id="btnDaily">日</button>
-                <button class="filter-btn" id="btnMonthly">月</button>
-              </div>
-            </div>
-            <div class="canvas-wrapper">
-              <canvas id="foreignChart"></canvas>
-            </div>
-          </div>
-          
+      </div>
+      
+      <div class="metric-card panel flex-col">
+        <span class="metric-title">外資買賣超金額 (億)</span>
+        <div class="metric-value-row">
+          <h2 class="metric-value text-red">+125.4</h2>
+          <span class="badge neutral">今日</span>
         </div>
+      </div>
+      
+      <div class="metric-card panel flex-col">
+        <span class="metric-title">大盤成交量 (億)</span>
+        <div class="metric-value-row">
+          <h2 class="metric-value">4,120</h2>
+          <span class="badge green"><i data-lucide="arrow-down-right"></i> -15%</span>
+        </div>
+      </div>
+    </section>
 
-        <!-- Right Column: News Feed -->
-        <div class="col-right">
-          <div class="news-container glass-panel">
-            <div class="card-header row-between sticky-header">
-              <h3>即時財經與政治新聞</h3>
-              <button class="icon-btn text-muted"><i data-lucide="refresh-cw"></i></button>
-            </div>
-            
-            <div class="news-feed" id="newsFeedList">
-              <!-- News items will be populated by app.js -->
-            </div>
-            
-            <button class="load-more-btn">載入更多新聞...</button>
+    <!-- Charts Stacked Vertically -->
+    <section class="charts-stack flex-col gap-lg">
+      
+      <!-- Taiex Chart -->
+      <div class="chart-container panel">
+        <div class="card-header row-between">
+          <h3>台股大盤走勢 (TAIEX)</h3>
+          <div class="filters">
+            <button class="filter-btn">1天</button>
+            <button class="filter-btn">1週</button>
+            <button class="filter-btn active">1月</button>
+            <button class="filter-btn">1年</button>
           </div>
         </div>
-
+        <div class="canvas-wrapper">
+          <canvas id="taiexChart"></canvas>
+        </div>
       </div>
 
-    </main>
-  </div>
+      <!-- Foreign Investors Chart -->
+      <div class="chart-container panel">
+        <div class="card-header row-between">
+          <h3>外資買賣超追蹤 (單位：億台幣)</h3>
+          <div class="filters foreign-controls">
+            <button class="filter-btn active" id="btnDaily">日</button>
+            <button class="filter-btn" id="btnMonthly">月</button>
+          </div>
+        </div>
+        <div class="canvas-wrapper">
+          <canvas id="foreignChart"></canvas>
+        </div>
+      </div>
+      
+    </section>
+
+    <!-- News Feed (Moved to bottom) -->
+    <section class="news-container panel flex-col">
+      <div class="card-header row-between">
+        <h3>即時財經與政治新聞</h3>
+        <button class="icon-btn text-muted"><i data-lucide="refresh-cw"></i></button>
+      </div>
+      
+      <div class="news-feed" id="newsFeedList">
+        <!-- Populated via script -->
+      </div>
+      
+      <button class="load-more-btn">載入更多新聞...</button>
+    </section>
+
+  </main>
   
+  <footer class="footer max-w-1440 mx-auto">
+    <p class="text-muted text-sm">© 2026 TPEXplore. Market data is conceptual mock data.</p>
+  </footer>
+
   <!-- Application Logic -->
   <script src="app.js"></script>
   <!-- Initialize Icons -->

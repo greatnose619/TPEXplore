@@ -32,7 +32,7 @@ const colors = {
 function generateTaiexData() {
   const labels = [];
   const data = [];
-  let currentPrice = 19500;
+  let currentPrice = 33000; // Baseline at 33,000 as requested
   
   // Generate 30 days of mock data
   for (let i = 30; i >= 0; i--) {
@@ -45,6 +45,11 @@ function generateTaiexData() {
     currentPrice += change;
     data.push(currentPrice.toFixed(0));
   }
+  
+  // Update HTML display value with the final generated current price
+  const taiexDisplay = document.getElementById('taiexCurrentValue');
+  if(taiexDisplay) taiexDisplay.innerText = Number(data[data.length - 1]).toLocaleString();
+
   return { labels, data };
 }
 
@@ -89,7 +94,7 @@ function initTaiexChart() {
   // Create gradient
   const gradient = ctx.createLinearGradient(0, 0, 0, 300);
   gradient.addColorStop(0, colors.lineFill);
-  gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+  gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 
   taiexChartInstance = new Chart(ctx, {
     type: 'line',
@@ -104,7 +109,7 @@ function initTaiexChart() {
         tension: 0.4, // smooth curve
         fill: true,
         pointBackgroundColor: colors.lineBorder,
-        pointBorderColor: '#0b0f19',
+        pointBorderColor: '#212121',
         pointBorderWidth: 2,
         pointRadius: 0,
         pointHoverRadius: 6
@@ -125,7 +130,7 @@ function initTaiexChart() {
           grid: { color: colors.grid, drawBorder: false },
           border: { dash: [5, 5] },
           // Don't start at zero for stock index
-          min: 19000, 
+          min: 32000, 
         }
       },
       interaction: {
@@ -189,15 +194,19 @@ function updateForeignChart(type) {
   foreignChartInstance.update();
 }
 
-// --- Populate News Feed ---
+// --- Populate News Feed (10 Items) ---
 
 const mockNews = [
-  { tag: '總體經濟', time: '10 分鐘前', title: '聯準會 (Fed) 利率決策出爐，主席暗示今年仍有降息空間', type: 'global' },
-  { tag: '半導體', time: '30 分鐘前', title: '台積電公佈最新法說會營收展望，AI 晶片需求持續強勁', type: 'local' },
-  { tag: '籌碼動向', time: '1 小時前', title: '外資今日買超125億，大舉加碼金融與AI伺服器概念股', type: 'local' },
-  { tag: '國際地緣', time: '2 小時前', title: '美中貿易新禁令影響？科技類股盤前震盪整理', type: 'global' },
-  { tag: '產業鏈', time: '3 小時前', title: '輝達 (NVIDIA) 宣佈新一代架構投片，供應鏈台廠受惠名單大公開', type: 'local' },
-  { tag: '外匯市場', time: '5 小時前', title: '新台幣早盤強勢升值5角，熱錢湧入台北匯市', type: 'global' }
+  { tag: '總體經濟', time: '10 分鐘前', title: '聯準會利率決策出爐，主席暗示今年仍有預防性降息空間', url: 'https://news.cnyes.com/' },
+  { tag: '半導體', time: '18 分鐘前', title: '台積電公佈最新營收展望，AI 晶片先進製程需求全面滿載', url: 'https://money.udn.com/' },
+  { tag: '籌碼動向', time: '35 分鐘前', title: '外資今日買超125億，大舉加碼金融與AI伺服器供應鏈概念股', url: 'https://tw.stock.yahoo.com/' },
+  { tag: '國際地緣', time: '1 小時前', title: '地緣政治變數發酵？科技類股盤前震盪整理，市場靜待財報週', url: 'https://news.cnyes.com/' },
+  { tag: '產業動態', time: '2 小時前', title: '輝達 (NVIDIA) 宣佈新一代架構投片，供應鏈台廠受惠名單大公開', url: 'https://money.udn.com/' },
+  { tag: '外匯市場', time: '3 小時前', title: '新台幣盤中強勢升值5角，熱錢湧入台北匯市創本月新高', url: 'https://finance.ettoday.net/' },
+  { tag: '營收速報', time: '4 小時前', title: '聯發科Q3法說會前瞻：旗艦手機晶片出貨暢旺，單季毛利率挑戰新高', url: 'https://tw.stock.yahoo.com/' },
+  { tag: '綠能發電', time: '5 小時前', title: '政府宣布擴大綠能基建投資，重電族群早盤強勢亮燈漲停', url: 'https://money.udn.com/' },
+  { tag: '原物料', time: '6 小時前', title: '國際金價突破歷史新高，避險資金持續湧入貴金屬市場', url: 'https://cn.reuters.com/' },
+  { tag: '電動車', time: '8 小時前', title: '鴻海科技日展示多款電動新車，電動巴士訂單能見度直達年底', url: 'https://www.bnext.com.tw/' }
 ];
 
 function renderNews() {
@@ -207,7 +216,7 @@ function renderNews() {
   let html = '';
   mockNews.forEach(news => {
     html += `
-      <div class="news-item">
+      <div class="news-item" onclick="window.open('${news.url}', '_blank')">
         <div class="news-meta">
           <span class="news-tag">${news.tag}</span>
           <span class="time">${news.time}</span>
@@ -223,28 +232,27 @@ function renderNews() {
 // --- DOM Ready ---
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Render charts
   initTaiexChart();
   initForeignChart();
-  
-  // 2. Render News
   renderNews();
   
-  // 3. Setup event listeners for chart toggle (Daily vs Monthly)
+  // Setup event listeners for chart toggle
   const btnDaily = document.getElementById('btnDaily');
   const btnMonthly = document.getElementById('btnMonthly');
   
-  btnDaily.addEventListener('click', () => {
-    btnDaily.classList.add('active');
-    btnMonthly.classList.remove('active');
-    updateForeignChart('daily');
-  });
-  
-  btnMonthly.addEventListener('click', () => {
-    btnMonthly.classList.add('active');
-    btnDaily.classList.remove('active');
-    updateForeignChart('monthly');
-  });
+  if (btnDaily && btnMonthly) {
+    btnDaily.addEventListener('click', () => {
+      btnDaily.classList.add('active');
+      btnMonthly.classList.remove('active');
+      updateForeignChart('daily');
+    });
+    
+    btnMonthly.addEventListener('click', () => {
+      btnMonthly.classList.add('active');
+      btnDaily.classList.remove('active');
+      updateForeignChart('monthly');
+    });
+  }
   
   // Filter buttons for Taiex (visual only for mock)
   const filters = document.querySelectorAll('.chart-container:first-of-type .filter-btn');
@@ -252,10 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', (e) => {
       filters.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
-      
-      // Simulate data reload
-      taiexChartInstance.data.datasets[0].data = generateTaiexData().data;
-      taiexChartInstance.update();
+      if (taiexChartInstance) {
+        taiexChartInstance.data.datasets[0].data = generateTaiexData().data;
+        taiexChartInstance.update();
+      }
     });
   });
 });

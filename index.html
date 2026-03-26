@@ -29,18 +29,7 @@
         <i data-lucide="trending-up" class="logo-icon text-muted"></i>
         <span>TPEXplore</span>
       </div>
-      
-      <div class="search-bar panel">
-        <i data-lucide="search"></i>
-        <input type="text" placeholder="搜尋股票代號或名稱 (例如：2330)..." />
-      </div>
-      
-      <div class="header-actions">
-        <button class="icon-btn"><i data-lucide="bell"></i></button>
-        <div class="user-profile">
-          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
-        </div>
-      </div>
+      <!-- Removed search bar, notification, and user avatar -->
     </div>
   </header>
 
@@ -52,8 +41,8 @@
       <div class="metric-card panel flex-col">
         <span class="metric-title">加權指數 (TAIEX)</span>
         <div class="metric-value-row">
-          <h2 class="metric-value">20,123.45</h2>
-          <span class="badge red"><i data-lucide="arrow-up-right"></i> 142.1 (0.71%)</span>
+          <h2 class="metric-value" id="taiexCurrentValue">33,123.45</h2>
+          <span class="badge red"><i data-lucide="arrow-up-right"></i> 142.1 (0.43%)</span>
         </div>
       </div>
       
@@ -68,8 +57,8 @@
       <div class="metric-card panel flex-col">
         <span class="metric-title">大盤成交量 (億)</span>
         <div class="metric-value-row">
-          <h2 class="metric-value">4,120</h2>
-          <span class="badge green"><i data-lucide="arrow-down-right"></i> -15%</span>
+          <h2 class="metric-value">5,820</h2>
+          <span class="badge green"><i data-lucide="arrow-down-right"></i> -8%</span>
         </div>
       </div>
     </section>
@@ -109,18 +98,50 @@
       
     </section>
 
+    <!-- PTT Stock Discussion Block -->
+    <section class="ptt-container panel flex-col">
+      <div class="card-header row-between">
+        <div class="title-with-icon">
+          <i data-lucide="message-square" class="text-muted"></i>
+          <h3>PTT 股板 (Stock) 24H 討論熱點</h3>
+        </div>
+        <span class="badge neutral">社群情緒分析</span>
+      </div>
+      
+      <div class="ptt-summary flex-col gap-md">
+        <div class="sentiment-row row-between">
+          <span class="text-primary font-medium">🔥 綜合市場情緒：</span>
+          <span class="sentiment-indicator text-red font-bold">偏多 (Bullish)</span>
+        </div>
+        
+        <div class="trending-stocks flex-row gap-md">
+          <div class="stock-tag">1. 台積電 (2330)<span class="text-red">熱度極高</span></div>
+          <div class="stock-tag">2. 鴻海 (2317)<span class="text-red">看漲</span></div>
+          <div class="stock-tag">3. 聯發科 (2454)<span class="text-green">多空交戰</span></div>
+        </div>
+        
+        <p class="text-muted text-sm leading-relaxed">
+          <strong>AI 分析洞察：</strong> 近期看板討論高度集中在先進製程產能與 AI 伺服器供應鏈利多消息。多數鄉民對大型權值股後市持樂觀態度，但針對中小型高基期個股，則出現了部分「居高思危」與獲利了結的警示討論。
+        </p>
+      </div>
+    </section>
+
     <!-- News Feed (Moved to bottom) -->
     <section class="news-container panel flex-col">
-      <div class="card-header row-between">
-        <h3>即時財經與政治新聞</h3>
-        <button class="icon-btn text-muted"><i data-lucide="refresh-cw"></i></button>
+      <div class="card-header flex-col" style="align-items: flex-start; gap: 0.5rem;">
+        <div class="row-between" style="width: 100%;">
+          <h3>即時財經與政治新聞</h3>
+          <button class="icon-btn text-muted"><i data-lucide="refresh-cw"></i></button>
+        </div>
+        <!-- AI Macro Financial Summary -->
+        <p class="text-muted text-sm leading-relaxed">
+          <strong>🧠 AI 總體金融情勢摘要：</strong> 隨著全球通膨降溫趨勢明朗，主要央行貨幣政策進入寬鬆週期，帶動新興市場資金活水。目前市場聚焦於科技巨頭財報與地緣政治局勢變數，台灣受惠於強勁的半導體出口與 AI 資本支出擴張，加權指數持續挑戰歷史新高，惟須留意短線漲多後的技術面修正風險。
+        </p>
       </div>
       
       <div class="news-feed" id="newsFeedList">
-        <!-- Populated via script -->
+        <!-- Populated via script (10 items, clickable URLs) -->
       </div>
-      
-      <button class="load-more-btn">載入更多新聞...</button>
     </section>
 
   </main>

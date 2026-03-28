@@ -83,10 +83,11 @@ body {
   padding: 16px; /* Unified to 16px */
 }
 .card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.025em;
+  font-size: 1.25rem; /* shadcn text-xl */
+  line-height: 1.75rem; 
+  font-weight: 600; /* font-semibold */
+  letter-spacing: -0.025em; /* tracking-tight */
+  scroll-margin-top: 5rem; /* scroll-m-20 */
   color: hsl(var(--foreground));
   display: flex;
   align-items: center;

@@ -7,19 +7,16 @@
   
   <meta name="description" content="即時追蹤台灣大盤走勢、外資買賣超動向以及全球重大財經新聞的匯整儀表板。">
   
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   
-  <!-- Minimalist Header -->
   <header class="header">
     <div class="header-container max-w-1280 mx-auto row-between">
       <div class="logo">
@@ -28,10 +25,8 @@
     </div>
   </header>
 
-  <!-- Main Content centered with max-width -->
   <main class="main-content max-w-1280 mx-auto flex-col gap-16">
     
-    <!-- Top KPI row -->
     <section class="metrics-grid">
       <div class="card metric-card flex-col">
         <div class="card-header">
@@ -44,7 +39,7 @@
       
       <div class="card metric-card flex-col">
         <div class="card-header">
-          <span class="metric-title">外資及陸資買賣超金額 (百萬)</span>
+          <span class="metric-title">外資及陆資買賣超金額 (百萬)</span>
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="foreignCurrentValue">--</h2>
@@ -61,14 +56,12 @@
       </div>
     </section>
 
-    <!-- Charts Layout -->
     <section class="charts-grid w-full">
       
-      <!-- Taiex Chart -->
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h3 class="card-title">台股大盤走勢 (TAIEX)</h3>
+            <h4 class="card-title">台股大盤走勢 (TAIEX)</h4>
             <div class="inline-filters" id="taiex-filters">
               <button class="filter-btn" data-range="day">1天</button>
               <button class="filter-btn" data-range="week">1週</button>
@@ -90,11 +83,10 @@
         </div>
       </div>
 
-      <!-- Foreign Investors Chart -->
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h3 class="card-title">外資買賣超追蹤</h3>
+            <h4 class="card-title">外資買賣超追蹤</h4>
           </div>
           <p class="card-description">外資及陸資買家超匯總 (單位：百萬台幣)</p>
         </div>
@@ -112,39 +104,35 @@
       
     </section>
 
-    <!-- Side-by-side Layout for PTT and AI Summary -->
     <section class="charts-grid w-full">
       
-      <!-- PTT Stock Discussion Block -->
       <div class="card ptt-container flex-col">
         <div class="card-header flex-row items-center justify-between">
-          <h3 class="card-title">PTT 股板 (Stock) 24H 討論熱點</h3>
-          <span class="badge neutral">社群情緒分析</span>
+          <h4 class="card-title">PTT 股板 (Stock) 24H 討論熱點</h4>
         </div>
         
         <div class="card-content ptt-summary flex-col">
-          <div class="row-between">
+          <div class="row-between mb-2">
             <span class="font-medium text-sm">綜合市場情緒：</span>
             <span class="text-green font-bold text-sm tracking-tight">震盪保守 (Caution)</span>
           </div>
           
+          <p class="text-muted text-sm leading-relaxed" style="margin-bottom: 1rem;">
+            <strong>AI 分析洞察：</strong> 近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
+          </p>
+
           <div class="flex-row gap-16">
             <div class="stock-tag">1. 台積電 (2330)<span class="text-green">創高回檔</span></div>
             <div class="stock-tag">2. 鴻海 (2317)<span class="text-green">外資賣壓</span></div>
             <div class="stock-tag">3. 中興電 (1513)<span class="text-red">避險買盤</span></div>
           </div>
-          
-          <p class="text-muted text-sm leading-relaxed" style="margin-top: 0.5rem;">
-            <strong>AI 分析洞察：</strong> 近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
-          </p>
         </div>
       </div>
 
-      <!-- News AI Summary (Card only, no news list) -->
       <div class="card news-container flex-col">
         <div class="card-header flex-col gap-16">
           <div class="card-header-actions">
-            <h3 class="card-title">最新金融情勢 AI 洞察</h3>
+            <h4 class="card-title">最新金融情勢 AI 洞察</h4>
           </div>
         </div>
         <div class="card-content">
@@ -163,7 +151,6 @@
     <p class="text-muted text-sm tracking-tight">© 2026 TPEXplore. Data provided by TWSE. Dashboard powered by shadcn/ui styles.</p>
   </footer>
 
-  <!-- Application Logic -->
   <script src="app.js"></script>
 </body>
 </html>

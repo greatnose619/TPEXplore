@@ -308,45 +308,8 @@ function generateForeignMockHistory(count) {
   return res;
 }
 
-// --- Populate News Feed (Redirects to specific internal page) ---
-
-const realNews = [
-  { tag: '大盤走勢', time: '1 小時前', title: '台股出現報復性反彈近千點！台指期開盤收復失土，大盤強勢站穩三萬大關' },
-  { tag: '半導體', time: '2 小時前', title: '【殺積盤轉拉積盤】台積電(2330)強勢表態，收盤價創下歷史新高來到 1845 元行情' },
-  { tag: '權值股', time: '3 小時前', title: '鴻海(2317)法說會釋出利多，AI伺服器拉貨動能強勁，早盤漲幅達半根停板' },
-  { tag: '晶片設計', time: '4 小時前', title: '聯發科(2454)宣布新一代天璣晶片正式投產，供應商名單與受惠股一次看' },
-  { tag: '總經動態', time: '5 小時前', title: 'FOMC釋放鴿派訊號確認降息空間，資金潮挹注亞洲新興市場與台幣走升' },
-  { tag: '法人籌碼', time: '6 小時前', title: '外資終止連四賣！今日回補百億資金，鎖定金融、重電與先進封裝概念股' },
-  { tag: '綠能電網', time: '8 小時前', title: '台電強韌電網計畫預算加碼，華城(1519)、中興電(1513)雙雙亮燈鎖死' },
-  { tag: '航運族群', time: '10 小時前', title: '紅海危機外溢效應？貨櫃三雄長榮(2603)帶量上攻，運價指數再創波段新高' }
-];
-
-function renderNews() {
-  const container = document.getElementById('newsFeedList');
-  if (!container) return;
-  
-  let html = '';
-  realNews.forEach((news, index) => {
-    // Links route dynamically to our simulated news_detail.html
-    html += `
-      <a href="news.html?id=${index}" target="_blank" rel="noopener noreferrer" class="news-link">
-        <div class="news-item">
-          <div class="news-meta">
-            <span class="news-tag">${news.tag}</span>
-            <span class="news-time">${news.time}</span>
-          </div>
-          <h4 class="news-title">${news.title}</h4>
-        </div>
-      </a>
-    `;
-  });
-  
-  container.innerHTML = html;
-}
-
 // --- DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
   fetchTWSETaiex();
   fetchTWSEForeign();
-  renderNews();
 });

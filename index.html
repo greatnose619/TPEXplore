@@ -12,9 +12,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -26,7 +23,7 @@
   <header class="header">
     <div class="header-container max-w-1280 mx-auto row-between">
       <div class="logo">
-        <i data-lucide="line-chart" class="logo-icon text-muted"></i>
+        <span>📊</span>
         <span>TPEXplore</span>
       </div>
     </div>
@@ -43,16 +40,16 @@
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="taiexCurrentValue">--</h2>
-          <span class="badge red" id="taiexChangeBadge"><i data-lucide="arrow-up-right"></i> --</span>
+          <span class="badge neutral" id="taiexChangeBadge">--</span>
         </div>
       </div>
       
       <div class="card metric-card flex-col">
         <div class="card-header">
-          <span class="metric-title">外資及陸資買家超金額 (百萬)</span>
+          <span class="metric-title">外資及陆資買賣超金額 (百萬)</span>
         </div>
         <div class="card-content metric-value-row">
-          <h2 class="metric-value text-red" id="foreignCurrentValue">--</h2>
+          <h2 class="metric-value" id="foreignCurrentValue">--</h2>
           <span class="badge neutral">當日淨額</span>
         </div>
       </div>
@@ -68,14 +65,14 @@
       </div>
     </section>
 
-    <!-- Charts Layout (Side-by-side Grids via gap-16) -->
+    <!-- Charts Layout -->
     <section class="charts-grid w-full">
       
       <!-- Taiex Chart -->
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h3 class="card-title"><i data-lucide="trending-up"></i> 台股大盤走勢 (TAIEX)</h3>
+            <h3 class="card-title">📈 台股大盤走勢 (TAIEX)</h3>
             <div class="inline-filters" id="taiex-filters">
               <button class="filter-btn" data-range="day">1天</button>
               <button class="filter-btn" data-range="week">1週</button>
@@ -101,10 +98,9 @@
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h3 class="card-title"><i data-lucide="building-2"></i> 外資買賣超追蹤</h3>
-            <!-- Removed the day/month filter button as requested -->
+            <h3 class="card-title">🏦 外資買賣超追蹤</h3>
           </div>
-          <p class="card-description">外資及陸資買賣超匯總 (單位：百萬台幣)</p>
+          <p class="card-description">外資及陸資買家超匯總 (單位：百萬台幣)</p>
         </div>
         
         <div class="card-content">
@@ -122,8 +118,8 @@
 
     <!-- PTT Stock Discussion Block -->
     <section class="card ptt-container flex-col">
-      <div class="card-header row-between">
-        <h3 class="card-title"><i data-lucide="message-square"></i> PTT 股板 (Stock) 24H 討論熱點</h3>
+      <div class="card-header flex-row items-center gap-16">
+        <h3 class="card-title">💬 PTT 股板 (Stock) 24H 討論熱點</h3>
         <span class="badge neutral">社群情緒分析</span>
       </div>
       
@@ -140,7 +136,7 @@
         </div>
         
         <p class="text-muted text-sm leading-relaxed" style="margin-top: 0.5rem;">
-          <strong>AI 分析洞察：</strong> 受惠於台積電股價衝上 1845 元歷史新高帶動，鄉民熱議「拉積盤」現象。整體情緒看漲，資金正朝 AI 先進封裝及高效能運算 (HPC) 相關權值股集中，投資人期待接下來的營收發布能再挹注利多。
+          <strong>AI 分析洞察：</strong> 受惠於台積電股價衝上歷史新高帶動，鄉民熱議「拉積盤」現象。整體情緒看漲，資金正朝 AI 先進封裝及高效能運算 (HPC) 相關權值股集中，投資人期待接下來的營收發布能再挹注利多。
         </p>
       </div>
     </section>
@@ -149,16 +145,16 @@
     <section class="card news-container flex-col">
       <div class="card-header flex-col gap-16">
         <div class="card-header-actions">
-          <h3 class="card-title"><i data-lucide="newspaper"></i> 即時財經新聞摘要</h3>
+          <h3 class="card-title">📰 即時財經新聞摘要</h3>
         </div>
         <p class="card-description leading-relaxed">
-          <strong>🧠 AI 總體金融情勢摘要：</strong> 外資連日大舉買進，推升台股加權指數站穩三萬三千點大關。權王台積電強勢領軍，多方控盤力道猛烈；儘管遭遇短線解套賣壓，大盤依然收復前波失土並呈現報復性反彈，顯示多頭格局穩固。
+          <strong>🧠 AI 總體金融情勢摘要：</strong> 外資連日大舉買進，推升台股加權指數站穩三萬三千點大關。大盤收復前波失土並呈現報復性反彈，顯示多頭格局穩固。
         </p>
       </div>
       
       <div class="card-content">
         <div class="news-feed" id="newsFeedList">
-          <!-- Populated via script (8 items, 4 per row structure, <a> wrappers) -->
+          <!-- Populated via script -->
         </div>
       </div>
     </section>
@@ -171,9 +167,5 @@
 
   <!-- Application Logic -->
   <script src="app.js"></script>
-  <!-- Initialize Icons -->
-  <script>
-    lucide.createIcons();
-  </script>
 </body>
 </html>

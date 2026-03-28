@@ -39,7 +39,6 @@
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="taiexCurrentValue">--</h2>
-          <span class="badge neutral" id="taiexChangeBadge">--</span>
         </div>
       </div>
       
@@ -49,7 +48,6 @@
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="foreignCurrentValue">--</h2>
-          <span class="badge neutral">當日淨額</span>
         </div>
       </div>
       
@@ -59,7 +57,6 @@
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="volumeCurrentValue">--</h2>
-          <span class="badge neutral">今日</span>
         </div>
       </div>
     </section>
@@ -115,44 +112,49 @@
       
     </section>
 
-    <!-- PTT Stock Discussion Block -->
-    <section class="card ptt-container flex-col">
-      <div class="card-header flex-row items-center justify-between">
-        <h3 class="card-title">PTT 股板 (Stock) 24H 討論熱點</h3>
-        <span class="badge neutral">社群情緒分析</span>
-      </div>
+    <!-- Side-by-side Layout for PTT and AI Summary -->
+    <section class="charts-grid w-full">
       
-      <div class="card-content ptt-summary flex-col">
-        <div class="row-between">
-          <span class="font-medium text-sm">綜合市場情緒：</span>
-          <span class="text-green font-bold text-sm tracking-tight">震盪保守 (Caution)</span>
+      <!-- PTT Stock Discussion Block -->
+      <div class="card ptt-container flex-col">
+        <div class="card-header flex-row items-center justify-between">
+          <h3 class="card-title">PTT 股板 (Stock) 24H 討論熱點</h3>
+          <span class="badge neutral">社群情緒分析</span>
         </div>
         
-        <div class="flex-row gap-16">
-          <div class="stock-tag">1. 台積電 (2330)<span class="text-green">創高回檔</span></div>
-          <div class="stock-tag">2. 鴻海 (2317)<span class="text-green">外資賣壓</span></div>
-          <div class="stock-tag">3. 中興電 (1513)<span class="text-red">避險買盤</span></div>
+        <div class="card-content ptt-summary flex-col">
+          <div class="row-between">
+            <span class="font-medium text-sm">綜合市場情緒：</span>
+            <span class="text-green font-bold text-sm tracking-tight">震盪保守 (Caution)</span>
+          </div>
+          
+          <div class="flex-row gap-16">
+            <div class="stock-tag">1. 台積電 (2330)<span class="text-green">創高回檔</span></div>
+            <div class="stock-tag">2. 鴻海 (2317)<span class="text-green">外資賣壓</span></div>
+            <div class="stock-tag">3. 中興電 (1513)<span class="text-red">避險買盤</span></div>
+          </div>
+          
+          <p class="text-muted text-sm leading-relaxed" style="margin-top: 0.5rem;">
+            <strong>AI 分析洞察：</strong> 近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
+          </p>
         </div>
-        
-        <p class="text-muted text-sm leading-relaxed" style="margin-top: 0.5rem;">
-          <strong>AI 分析洞察：</strong> 近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
-        </p>
       </div>
-    </section>
 
-    <!-- News AI Summary (Card only, no news list) -->
-    <section class="card news-container flex-col">
-      <div class="card-header flex-col gap-16">
-        <div class="card-header-actions">
-          <h3 class="card-title">最新金融情勢 AI 洞察</h3>
+      <!-- News AI Summary (Card only, no news list) -->
+      <div class="card news-container flex-col">
+        <div class="card-header flex-col gap-16">
+          <div class="card-header-actions">
+            <h3 class="card-title">最新金融情勢 AI 洞察</h3>
+          </div>
+        </div>
+        <div class="card-content">
+          <p class="card-description leading-relaxed text-base" style="color: hsl(var(--foreground));">
+            以 2026 年 3 月底最新盤勢分析，台股大盤目前正試圖在三萬三千點 (33,000) 高檔區間建立支撐。受到近期國際地緣政治與美股科技類股震盪拖累，扮演穩盤重心的權值雙雄（台積電、鴻海）承受了較大的外資調節賣壓。<br><br>
+            然而，最新市場籌碼數據顯示，避險資金正迅速進行產業輪動，包括低軌衛星、塑化原物料以及受惠於政府強韌電網政策的重電族群，成為了短線資金停泊的首選。法人指出，投資人現階段應以「居高思危」為操作原則，靜待接下來的財報效應落定。
+          </p>
         </div>
       </div>
-      <div class="card-content">
-        <p class="card-description leading-relaxed text-base" style="color: hsl(var(--foreground));">
-          以 2026 年 3 月底最新盤勢分析，台股大盤目前正試圖在三萬三千點 (33,000) 高檔區間建立支撐。受到近期國際地緣政治（中東局勢不穩）與美股科技類股震盪拖累，扮演穩盤重心的權值雙雄（台積電、鴻海）承受了較大的外資調節賣壓，導致近兩個交易日大盤合計湧現數百點的回檔。<br><br>
-          然而，多頭格局並未全面潰散。最新市場籌碼數據顯示，避險資金正迅速進行產業輪動，包括低軌衛星、塑化原物料以及受惠於政府強韌電網政策的重電族群，成為了短線資金停泊的首選。法人分析指出，投資人現階段應以「居高思危」為操作原則，靜待接下來的科技股財報效應落定，方能確立下一波的主流上攻動能。
-        </p>
-      </div>
+
     </section>
 
   </main>

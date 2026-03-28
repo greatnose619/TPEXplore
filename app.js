@@ -54,12 +54,6 @@ async function fetchTWSETaiex() {
       const prevVal = parseFloat(prev.TAIEX.replace(/,/g, ''));
       const changePercent = prevVal ? ((Math.abs(changeVal) / prevVal) * 100).toFixed(2) : '0.00';
       
-      const taiexBadge = document.getElementById('taiexChangeBadge');
-      if (taiexBadge) {
-        taiexBadge.className = `badge ${isUp ? 'red' : 'green'}`;
-        taiexBadge.innerHTML = `<span class="font-bold">${isUp ? '▲' : '▼'}</span> ${Math.abs(changeVal)} (${changePercent}%)`;
-      }
-      
       const volTradeValue = parseFloat(latest.TradeValue.replace(/,/g, ''));
       const volEl = document.getElementById('volumeCurrentValue');
       if(volEl) volEl.innerText = (volTradeValue / 100000000).toLocaleString(undefined, {maximumFractionDigits: 0});
@@ -74,12 +68,6 @@ async function fetchTWSETaiex() {
     
     const currentValEl = document.getElementById('taiexCurrentValue');
     if(currentValEl) currentValEl.innerText = latest.TAIEX;
-    
-    const taiexBadge = document.getElementById('taiexChangeBadge');
-    if (taiexBadge) {
-      taiexBadge.className = `badge red`;
-      taiexBadge.innerHTML = `<span class="font-bold">▲</span> 152.0 (0.46%)`;
-    }
     
     const volEl = document.getElementById('volumeCurrentValue');
     if(volEl) volEl.innerText = "5,420";
@@ -104,15 +92,15 @@ async function fetchTWSEForeign() {
       
       if(foreignData.length > 0) {
         let history = foreignData;
-        if(history.length < 14) {
-           const padCount = 14 - history.length;
+        if(history.length < 10) {
+           const padCount = 10 - history.length;
            history = [...generateForeignMockHistory(padCount), ...foreignData];
         } else {
-           history = history.slice(-14);
+           history = history.slice(-10);
         }
 
         const labels = history.map((item, idx) => {
-          if(!item.Day_Date) return getPastDateLabel(14 - idx);
+          if(!item.Day_Date) return getPastDateLabel(10 - idx);
           return item.Day_Date.slice(-4, -2) + '/' + item.Day_Date.slice(-2);
         });
         
@@ -135,7 +123,7 @@ async function fetchTWSEForeign() {
     }
   } catch(e) {
     console.warn("API Fetch failed, using fallback data for Foreign Inv", e);
-    const m = generateForeignMockHistory(14);
+    const m = generateForeignMockHistory(10);
     
     // KPI Fallback Fix
     const latestSpread = m[m.length-1].Buy_Sell_Spread;
@@ -145,7 +133,7 @@ async function fetchTWSEForeign() {
       kpiEl.className = `metric-value ${latestSpread >= 0 ? 'text-red' : 'text-green'}`;
     }
 
-    drawForeignChart(m.map((_, i) => getPastDateLabel(14 - i)), m.map(item => item.Buy_Sell_Spread));
+    drawForeignChart(m.map((_, i) => getPastDateLabel(10 - i)), m.map(item => item.Buy_Sell_Spread));
   } finally {
     if (loading) loading.classList.remove('active');
   }

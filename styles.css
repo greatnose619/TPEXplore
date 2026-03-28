@@ -115,10 +115,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
-  padding: 0 16px;
 }
 .header-container {
   height: 4rem; /* 64px */
+  padding: 0 16px; /* Ensures logo perfectly aligns with the cards in main-content */
 }
 .logo {
   display: flex;

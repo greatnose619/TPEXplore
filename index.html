@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TPEXplore | Taiwan Stock Market</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>">
   
   <meta name="description" content="即時追蹤台灣大盤走勢、外資買賣超動向以及全球重大財經新聞的匯整儀表板。">
   
@@ -31,7 +32,7 @@
   <main class="main-content max-w-1280 mx-auto flex-col gap-16">
     
     <section class="metrics-grid">
-      <div class="card metric-card flex-col">
+      <div class="card metric-card flex-col" id="taiexCard">
         <div class="card-header">
           <span class="metric-title">本日加權指數</span>
         </div>
@@ -40,7 +41,7 @@
         </div>
       </div>
       
-      <div class="card metric-card flex-col">
+      <div class="card metric-card flex-col" id="foreignCard">
         <div class="card-header">
           <span class="metric-title">本日外資淨買賣 (億)</span>
         </div>
@@ -49,7 +50,7 @@
         </div>
       </div>
       
-      <div class="card metric-card flex-col">
+      <div class="card metric-card flex-col" id="volumeCard">
         <div class="card-header">
           <span class="metric-title">本日大盤成交量 (億)</span>
         </div>
@@ -64,7 +65,10 @@
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h4 class="card-title">近十日加權指數走勢</h4>
+            <h4 class="card-title">
+              近十日加權指數走勢
+              <i class="info-icon" data-tooltip="資料來源: 台灣證券交易所 (TWSE)">i</i>
+            </h4>
           </div>
         </div>
         
@@ -75,14 +79,16 @@
           <div class="canvas-wrapper">
             <canvas id="taiexChart"></canvas>
           </div>
-          <div class="source-label">資料來源: 台灣證券交易所 (TWSE)</div>
         </div>
       </div>
 
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h4 class="card-title">近十日外資買賣統計表</h4>
+            <h4 class="card-title">
+              近十日外資買賣統計表
+              <i class="info-icon" data-tooltip="資料來源: 台灣證券交易所 (TWSE)">i</i>
+            </h4>
           </div>
         </div>
         
@@ -93,7 +99,6 @@
           <div class="canvas-wrapper">
             <canvas id="foreignChart"></canvas>
           </div>
-          <div class="source-label">資料來源: 台灣證券交易所 (TWSE)</div>
         </div>
       </div>
       
@@ -104,7 +109,7 @@
       <div class="card ptt-container flex-col">
         <div class="card-header flex-row items-center justify-between">
           <h4 class="card-title">PTT Stock 輿情分析</h4>
-          <span class="text-green font-bold text-sm tracking-tight">震盪保守 (Caution)</span>
+          <span class="badge caution">震盪保守 (Caution)</span>
         </div>
         
         <div class="card-content ptt-summary flex-col">

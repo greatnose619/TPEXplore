@@ -63,15 +63,31 @@ async function fetchData() {
     if (taiexJson.data && taiexJson.data.length > 0) {
       taiexRawData = taiexJson.data;
       const latest = taiexRawData[taiexRawData.length - 1];
+      const prev = taiexRawData[taiexRawData.length - 2];
 
       // Update TAIEX KPI
       const taiexEl = document.getElementById('taiexCurrentValue');
       if (taiexEl) taiexEl.innerText = latest.close.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
+      const taiexCard = document.getElementById('taiexCard');
+      if (taiexCard) {
+        taiexCard.classList.remove('is-up', 'is-down');
+        if (latest.spread > 0) taiexCard.classList.add('is-up');
+        else if (latest.spread < 0) taiexCard.classList.add('is-down');
+      }
+
       // Update Volume KPI (Trading_money is total Value in NTD. Convert to 億)
       const volumeEl = document.getElementById('volumeCurrentValue');
       const volInHundredMillion = latest.Trading_money / 100000000;
+      const prevVolInHundredMillion = prev ? prev.Trading_money / 100000000 : volInHundredMillion;
       if (volumeEl) volumeEl.innerText = volInHundredMillion.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+
+      const volumeCard = document.getElementById('volumeCard');
+      if (volumeCard) {
+        volumeCard.classList.remove('is-up', 'is-down');
+        if (volInHundredMillion > prevVolInHundredMillion) volumeCard.classList.add('is-up');
+        else if (volInHundredMillion < prevVolInHundredMillion) volumeCard.classList.add('is-down');
+      }
 
       renderTaiexChart();
     }
@@ -92,6 +108,13 @@ async function fetchData() {
         if (foreignEl) {
           foreignEl.innerText = `${latestSpreadInHundredMillion >= 0 ? '+' : ''}${latestSpreadInHundredMillion.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}`;
           foreignEl.className = `metric-value ${latestSpreadInHundredMillion >= 0 ? 'text-red' : 'text-green'}`;
+        }
+        
+        const foreignCard = document.getElementById('foreignCard');
+        if (foreignCard) {
+          foreignCard.classList.remove('is-up', 'is-down');
+          if (latestSpreadInHundredMillion > 0) foreignCard.classList.add('is-up');
+          else if (latestSpreadInHundredMillion < 0) foreignCard.classList.add('is-down');
         }
 
         // Draw Foreign Chart

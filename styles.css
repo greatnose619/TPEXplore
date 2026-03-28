@@ -142,8 +142,20 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--gap-16);
 }
+.metric-card {
+  transition: all 0.3s ease;
+}
 .metric-card .card-header { padding-bottom: 0.5rem; }
 .metric-card .card-content { padding-top: 0; }
+
+.metric-card.is-up {
+  border-color: hsl(var(--market-up));
+  background-color: hsl(var(--market-up) / 0.2);
+}
+.metric-card.is-down {
+  border-color: hsl(var(--market-down));
+  background-color: hsl(var(--market-down) / 0.2);
+}
 
 .metric-title {
   font-size: 0.875rem;
@@ -163,7 +175,6 @@ body {
   line-height: 1;
 }
 
-/* Badge (shadcn style) */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -181,7 +192,47 @@ body {
   color: hsl(var(--foreground)); 
   background: hsl(var(--secondary));
 }
+.badge.caution {
+  color: hsl(var(--market-down));
+  background: hsla(142, 71%, 45%, 0.1);
+  border: 1px solid hsl(var(--market-down) / 0.5);
+  border-radius: 9999px; /* full rounded */
+}
 .badge svg { width: 0.875rem; height: 0.875rem; }
+
+/* Tooltip definitions */
+.info-icon {
+  display: inline-flex;  
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: bold;
+  cursor: help;
+  position: relative;
+  margin-left: 0.5rem;
+}
+.info-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 150%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 50;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
 
 /* Charts Layout (Side-by-side requested) */
 .charts-grid { 

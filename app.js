@@ -1,6 +1,6 @@
 /**
  * =========================================
- * TPEXplore Application Logic
+ * TPEXplore Application Logic (FinMind API Edition)
  * =========================================
  */
 
@@ -28,110 +28,95 @@ let taiexChartInstance = null;
 let foreignChartInstance = null;
 let taiexRawData = []; 
 
-// --- API Fetchers (TWSE OpenAPI) ---
+// Calculate start date (going back 21 days ensures we get at least 10 trading days even with weekends/holidays)
+const d = new Date();
+d.setDate(d.getDate() - 21);
+const fallbackStartDate = d.toISOString().split('T')[0];
 
-async function fetchTWSETaiex() {
-  const loading = document.getElementById('taiexLoading');
-  if (loading) loading.classList.add('active');
-  
-  try {
-    const res = await fetch('https://openapi.twse.com.tw/v1/exchangeReport/FMTQIK');
-    if (!res.ok) throw new Error('TWSE API response not ok');
-    
-    const rawData = await res.json();
-    
-    if (Array.isArray(rawData) && rawData.length > 0) {
-      taiexRawData = rawData;
-      
-      const latest = rawData[rawData.length - 1];
-      
-      const currentValEl = document.getElementById('taiexCurrentValue');
-      if(currentValEl) currentValEl.innerText = latest.TAIEX;
-      
-      // Volume is in general numeric strings
-      const volTradeValue = parseFloat(latest.TradeValue.replace(/,/g, ''));
-      const volEl = document.getElementById('volumeCurrentValue');
-      if(volEl) volEl.innerText = (volTradeValue / 100000000).toLocaleString(undefined, {maximumFractionDigits: 0});
-      
-      renderTaiexChart(); // Now hardcoded to 10 days
-    }
-  } catch(e) {
-    console.warn("API Fetch failed, using fallback mock", e);
-    // Graceful Degradation & KPI Fix
-    taiexRawData = generateMockDailyData(33000, 30, 200); // Bug fixed, now returning array
-    const latest = taiexRawData[taiexRawData.length - 1];
-    
-    const currentValEl = document.getElementById('taiexCurrentValue');
-    if(currentValEl) currentValEl.innerText = latest.TAIEX;
-    
-    const volEl = document.getElementById('volumeCurrentValue');
-    if(volEl) volEl.innerText = "5,420";
-
-    renderTaiexChart();
-  } finally {
-    if (loading) loading.classList.remove('active');
+function updateLastUpdatedTime() {
+  const timeEl = document.querySelector('.last-updated');
+  if (timeEl) {
+    const now = new Date();
+    timeEl.innerText = `資料最後同步時間：${now.toLocaleString()}`;
   }
 }
 
-async function fetchTWSEForeign() {
-  const loading = document.getElementById('foreignLoading');
-  if (loading) loading.classList.add('active');
+// --- API Fetchers (FinMind API - CORS Friendly open data) ---
+
+async function fetchData() {
+  const taiexLoading = document.getElementById('taiexLoading');
+  const foreignLoading = document.getElementById('foreignLoading');
+  if (taiexLoading) taiexLoading.classList.add('active');
+  if (foreignLoading) foreignLoading.classList.add('active');
   
   try {
-    const res = await fetch('https://openapi.twse.com.tw/v1/fund/BFI82U');
-    if (!res.ok) throw new Error('TWSE API response not ok');
-    
-    const rawData = await res.json();
-    if (Array.isArray(rawData) && rawData.length > 0) {
-      const foreignData = rawData.filter(item => item.Name && item.Name.includes("外資及陸資"));
+    // Parallel Fetching for Market Data & Foreign Investor Data
+    const [taiexRes, foreignRes] = await Promise.all([
+      fetch(`https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=TAIEX&start_date=${fallbackStartDate}`),
+      fetch(`https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockTotalInstitutionalInvestors&start_date=${fallbackStartDate}`)
+    ]);
+
+    const taiexJson = await taiexRes.json();
+    const foreignJson = await foreignRes.json();
+
+    // -- 1. Process TAIEX Data --
+    if (taiexJson.data && taiexJson.data.length > 0) {
+      taiexRawData = taiexJson.data;
+      const latest = taiexRawData[taiexRawData.length - 1];
+
+      // Update TAIEX KPI
+      const taiexEl = document.getElementById('taiexCurrentValue');
+      if (taiexEl) taiexEl.innerText = latest.close.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      // Update Volume KPI (Trading_money is total Value in NTD. Convert to 億)
+      const volumeEl = document.getElementById('volumeCurrentValue');
+      const volInHundredMillion = latest.Trading_money / 100000000;
+      if (volumeEl) volumeEl.innerText = volInHundredMillion.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+
+      renderTaiexChart();
+    }
+
+    // -- 2. Process Foreign Data --
+    if (foreignJson.data && foreignJson.data.length > 0) {
+      // Filter out only Global Foreign Investors
+      const foreignData = foreignJson.data.filter(item => item.name === 'Foreign_Investor');
       
-      if(foreignData.length > 0) {
-        let history = foreignData;
-        if(history.length < 10) {
-           const padCount = 10 - history.length;
-           history = [...generateForeignMockHistory(padCount), ...foreignData];
-        } else {
-           history = history.slice(-10);
+      if (foreignData.length > 0) {
+        const history = foreignData.slice(-10); // Strictly the last 10 days
+        
+        const latest = history[history.length - 1];
+        const latestSpreadInHundredMillion = (latest.buy - latest.sell) / 100000000;
+        
+        // Update Foreign KPI
+        const foreignEl = document.getElementById('foreignCurrentValue');
+        if (foreignEl) {
+          foreignEl.innerText = `${latestSpreadInHundredMillion >= 0 ? '+' : ''}${latestSpreadInHundredMillion.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}`;
+          foreignEl.className = `metric-value ${latestSpreadInHundredMillion >= 0 ? 'text-red' : 'text-green'}`;
         }
 
-        const labels = history.map((item, idx) => {
-          if(!item.Day_Date) return getPastDateLabel(10 - idx);
-          return item.Day_Date.slice(-4, -2) + '/' + item.Day_Date.slice(-2);
-        });
+        // Draw Foreign Chart
+        const labels = history.map(item => item.date.slice(5).replace('-', '/'));
+        const spreadData = history.map(item => (item.buy - item.sell) / 100000000);
         
-        // Data format: 100M NTD (億)
-        const data = history.map(item => {
-           if(typeof item.Buy_Sell_Spread === 'number') return item.Buy_Sell_Spread / 100000000;
-           return parseFloat((item.Buy_Sell_Spread || "0").replace(/,/g, '')) / 100000000;
-        });
-        
-        const latestInfo = foreignData[foreignData.length - 1];
-        const latestSpread = parseFloat((latestInfo.Buy_Sell_Spread || "0").replace(/,/g, '')) / 100000000;
-        
-        const kpiEl = document.getElementById('foreignCurrentValue');
-        if(kpiEl) {
-          kpiEl.innerText = `${latestSpread >= 0 ? '+' : ''}${latestSpread.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}`;
-          kpiEl.className = `metric-value ${latestSpread >= 0 ? 'text-red' : 'text-green'}`;
-        }
-
-        drawForeignChart(labels, data);
+        drawForeignChart(labels, spreadData);
       }
     }
-  } catch(e) {
-    console.warn("API Fetch failed, using fallback data for Foreign Inv", e);
-    const m = generateForeignMockHistory(10);
-    
-    // Fallback logic formatting for 億
-    const latestSpread = m[m.length-1].Buy_Sell_Spread / 100000000;
-    const kpiEl = document.getElementById('foreignCurrentValue');
-    if(kpiEl) {
-      kpiEl.innerText = `${latestSpread >= 0 ? '+' : ''}${latestSpread.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}`;
-      kpiEl.className = `metric-value ${latestSpread >= 0 ? 'text-red' : 'text-green'}`;
-    }
 
-    drawForeignChart(m.map((_, i) => getPastDateLabel(10 - i)), m.map(item => item.Buy_Sell_Spread / 100000000));
+    // Explicitly update time only when logic completes without throwing
+    updateLastUpdatedTime();
+
+  } catch (e) {
+    console.warn("Real Data API Failed:", e);
+    
+    // In the rare edge case where FinMind fails, we gracefully render "--" instead of faking data
+    const elementsToClear = ['taiexCurrentValue', 'volumeCurrentValue', 'foreignCurrentValue'];
+    elementsToClear.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = "連線失敗";
+    });
   } finally {
-    if (loading) loading.classList.remove('active');
+    if (taiexLoading) taiexLoading.classList.remove('active');
+    if (foreignLoading) foreignLoading.classList.remove('active');
   }
 }
 
@@ -142,19 +127,10 @@ function renderTaiexChart() {
   
   // Directly extract exactly past 10 days
   const sliced = taiexRawData.slice(-10);
-  const labels = sliced.map(getLabel);
-  const data = sliced.map(getVal);
+  const labels = sliced.map(item => item.date.slice(5).replace('-', '/'));
+  const data = sliced.map(item => item.close);
   
   drawTaiexChart(labels, data);
-  
-  function getLabel(item) {
-    if (item.Date) return item.Date.slice(-4, -2) + '/' + item.Date.slice(-2);
-    return item.label;
-  }
-  function getVal(item) {
-    if (item.TAIEX) return parseFloat(item.TAIEX.replace(/,/g, ''));
-    return parseFloat(item.val);
-  }
 }
 
 // --- Chart Draw Implementations ---
@@ -234,31 +210,7 @@ function drawForeignChart(labels, data) {
   });
 }
 
-// --- Helper Functions ---
-
-function getPastDateLabel(daysAgo) {
-  const d = new Date();
-  d.setDate(d.getDate() - daysAgo);
-  return `${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
-}
-
-function generateMockDailyData(start, count, vol) {
-  let res = []; let price = start;
-  for(let i=count; i>0; i--) { 
-    price += (Math.random()-0.45)*vol; 
-    res.push({ label: getPastDateLabel(i), val: price.toFixed(0), TAIEX: price.toFixed(0), Change: "10" }); 
-  }
-  return res; // Reverted back to exact Array to fix parsing crash
-}
-
-function generateForeignMockHistory(count) {
-  let res = [];
-  for(let i=0; i<count; i++) { res.push({ Buy_Sell_Spread: (Math.random()-0.5)*20000000000 }); } // Adjusted mock scale
-  return res;
-}
-
 // --- DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
-  fetchTWSETaiex();
-  fetchTWSEForeign();
+  fetchData();
 });

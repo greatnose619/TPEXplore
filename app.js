@@ -69,11 +69,22 @@ async function fetchData() {
       const taiexEl = document.getElementById('taiexCurrentValue');
       if (taiexEl) taiexEl.innerText = latest.close.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
+      const upSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red"><path d="m18 15-6-6-6 6"/></svg>';
+      const downSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green"><path d="m6 9 6 6 6-6"/></svg>';
+
       const taiexCard = document.getElementById('taiexCard');
+      const taiexTrendIcon = document.getElementById('taiexTrendIcon');
       if (taiexCard) {
         taiexCard.classList.remove('is-up', 'is-down');
-        if (latest.spread > 0) taiexCard.classList.add('is-up');
-        else if (latest.spread < 0) taiexCard.classList.add('is-down');
+        if (latest.spread > 0) {
+          taiexCard.classList.add('is-up');
+          if (taiexTrendIcon) taiexTrendIcon.innerHTML = upSvg;
+        } else if (latest.spread < 0) {
+          taiexCard.classList.add('is-down');
+          if (taiexTrendIcon) taiexTrendIcon.innerHTML = downSvg;
+        } else {
+          if (taiexTrendIcon) taiexTrendIcon.innerHTML = '';
+        }
       }
 
       // Update Volume KPI (Trading_money is total Value in NTD. Convert to 億)
@@ -83,10 +94,18 @@ async function fetchData() {
       if (volumeEl) volumeEl.innerText = volInHundredMillion.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
 
       const volumeCard = document.getElementById('volumeCard');
+      const volumeTrendIcon = document.getElementById('volumeTrendIcon');
       if (volumeCard) {
         volumeCard.classList.remove('is-up', 'is-down');
-        if (volInHundredMillion > prevVolInHundredMillion) volumeCard.classList.add('is-up');
-        else if (volInHundredMillion < prevVolInHundredMillion) volumeCard.classList.add('is-down');
+        if (volInHundredMillion > prevVolInHundredMillion) {
+          volumeCard.classList.add('is-up');
+          if (volumeTrendIcon) volumeTrendIcon.innerHTML = upSvg;
+        } else if (volInHundredMillion < prevVolInHundredMillion) {
+          volumeCard.classList.add('is-down');
+          if (volumeTrendIcon) volumeTrendIcon.innerHTML = downSvg;
+        } else {
+          if (volumeTrendIcon) volumeTrendIcon.innerHTML = '';
+        }
       }
 
       renderTaiexChart();

@@ -150,11 +150,11 @@ body {
 
 .metric-card.is-up {
   border-color: hsl(var(--market-up));
-  background-color: hsl(var(--market-up) / 0.2);
+  background-color: hsl(var(--market-up) / 0.1);
 }
 .metric-card.is-down {
   border-color: hsl(var(--market-down));
-  background-color: hsl(var(--market-down) / 0.2);
+  background-color: hsl(var(--market-down) / 0.1);
 }
 
 .metric-title {
@@ -215,7 +215,6 @@ body {
   font-weight: bold;
   cursor: help;
   position: relative;
-  margin-left: 0.5rem;
 }
 .info-icon:hover::after {
   content: attr(data-tooltip);
@@ -223,10 +222,10 @@ body {
   bottom: 150%;
   left: 50%;
   transform: translateX(-50%);
-  background: hsl(var(--foreground));
-  color: hsl(var(--background));
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: hsl(0, 0%, 9%); /* Pure blackish dark theme */
+  color: hsl(0, 0%, 98%);     /* Pure white */
+  padding: 8px 12px;
+  border-radius: 6px;
   font-size: 0.75rem;
   white-space: nowrap;
   pointer-events: none;

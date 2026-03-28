@@ -36,8 +36,9 @@
         <div class="card-header">
           <span class="metric-title">本日加權指數</span>
         </div>
-        <div class="card-content metric-value-row">
+        <div class="card-content metric-value-row" style="justify-content: flex-start; gap: 8px; align-items: center;">
           <h2 class="metric-value" id="taiexCurrentValue">--</h2>
+          <span id="taiexTrendIcon"></span>
         </div>
       </div>
       
@@ -54,8 +55,9 @@
         <div class="card-header">
           <span class="metric-title">本日大盤成交量 (億)</span>
         </div>
-        <div class="card-content metric-value-row">
+        <div class="card-content metric-value-row" style="justify-content: flex-start; gap: 8px; align-items: center;">
           <h2 class="metric-value" id="volumeCurrentValue">--</h2>
+          <span id="volumeTrendIcon"></span>
         </div>
       </div>
     </section>
@@ -107,7 +109,7 @@
     <section class="charts-grid w-full">
       
       <div class="card ptt-container flex-col">
-        <div class="card-header flex-row items-center justify-between">
+        <div class="card-header flex-row items-center" style="gap: 12px;">
           <h4 class="card-title">PTT Stock 輿情分析</h4>
           <span class="badge caution">震盪保守 (Caution)</span>
         </div>

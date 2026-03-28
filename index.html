@@ -30,7 +30,7 @@
     <section class="metrics-grid">
       <div class="card metric-card flex-col">
         <div class="card-header">
-          <span class="metric-title">加權指數 (TAIEX)</span>
+          <span class="metric-title">本日加權指數</span>
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="taiexCurrentValue">--</h2>
@@ -39,7 +39,7 @@
       
       <div class="card metric-card flex-col">
         <div class="card-header">
-          <span class="metric-title">外資及陆資買賣超金額 (百萬)</span>
+          <span class="metric-title">本日外資淨買賣 (百萬)</span>
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="foreignCurrentValue">--</h2>
@@ -48,7 +48,7 @@
       
       <div class="card metric-card flex-col">
         <div class="card-header">
-          <span class="metric-title">大盤成交金額 (億)</span>
+          <span class="metric-title">本日大盤成交量 (億)</span>
         </div>
         <div class="card-content metric-value-row">
           <h2 class="metric-value" id="volumeCurrentValue">--</h2>
@@ -61,7 +61,7 @@
       <div class="card chart-container">
         <div class="card-header">
           <div class="card-header-actions">
-            <h4 class="card-title">加權指數 (TAIEX)</h4>
+            <h4 class="card-title">加權指數走勢</h4>
             <div class="inline-filters" id="taiex-filters">
               <button class="filter-btn" data-range="day">1天</button>
               <button class="filter-btn" data-range="week">1週</button>
@@ -107,16 +107,12 @@
       <div class="card ptt-container flex-col">
         <div class="card-header flex-row items-center justify-between">
           <h4 class="card-title">PTT Stock 輿情分析</h4>
+          <span class="text-green font-bold text-sm tracking-tight">震盪保守 (Caution)</span>
         </div>
         
         <div class="card-content ptt-summary flex-col">
-          <div class="row-between mb-2">
-            <span class="font-medium text-sm">綜合市場情緒：</span>
-            <span class="text-green font-bold text-sm tracking-tight">震盪保守 (Caution)</span>
-          </div>
-          
           <p class="text-muted text-sm leading-relaxed" style="margin-bottom: 1rem;">
-            <strong>AI 分析洞察：</strong> 近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
+            近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
           </p>
 
           <div class="flex-row gap-16">

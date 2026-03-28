@@ -44,26 +44,21 @@ async function fetchTWSETaiex() {
       taiexRawData = rawData;
       
       const latest = rawData[rawData.length - 1];
-      const prev = rawData[rawData.length - 2] || latest;
       
       const currentValEl = document.getElementById('taiexCurrentValue');
       if(currentValEl) currentValEl.innerText = latest.TAIEX;
       
-      const changeVal = parseFloat(latest.Change.replace(/,/g, ''));
-      const isUp = changeVal >= 0;
-      const prevVal = parseFloat(prev.TAIEX.replace(/,/g, ''));
-      const changePercent = prevVal ? ((Math.abs(changeVal) / prevVal) * 100).toFixed(2) : '0.00';
-      
+      // Volume is in general numeric strings
       const volTradeValue = parseFloat(latest.TradeValue.replace(/,/g, ''));
       const volEl = document.getElementById('volumeCurrentValue');
       if(volEl) volEl.innerText = (volTradeValue / 100000000).toLocaleString(undefined, {maximumFractionDigits: 0});
       
-      renderTaiexChart('month');
+      renderTaiexChart(); // Now hardcoded to 10 days
     }
   } catch(e) {
     console.warn("API Fetch failed, using fallback mock", e);
     // Graceful Degradation & KPI Fix
-    taiexRawData = generateMockDailyData(33000, 30, 200);
+    taiexRawData = generateMockDailyData(33000, 30, 200); // Bug fixed, now returning array
     const latest = taiexRawData[taiexRawData.length - 1];
     
     const currentValEl = document.getElementById('taiexCurrentValue');
@@ -72,7 +67,7 @@ async function fetchTWSETaiex() {
     const volEl = document.getElementById('volumeCurrentValue');
     if(volEl) volEl.innerText = "5,420";
 
-    renderTaiexChart('month');
+    renderTaiexChart();
   } finally {
     if (loading) loading.classList.remove('active');
   }
@@ -104,17 +99,18 @@ async function fetchTWSEForeign() {
           return item.Day_Date.slice(-4, -2) + '/' + item.Day_Date.slice(-2);
         });
         
+        // Data format: 100M NTD (億)
         const data = history.map(item => {
-           if(typeof item.Buy_Sell_Spread === 'number') return item.Buy_Sell_Spread;
-           return parseFloat((item.Buy_Sell_Spread || "0").replace(/,/g, '')) / 1000000;
+           if(typeof item.Buy_Sell_Spread === 'number') return item.Buy_Sell_Spread / 100000000;
+           return parseFloat((item.Buy_Sell_Spread || "0").replace(/,/g, '')) / 100000000;
         });
         
         const latestInfo = foreignData[foreignData.length - 1];
-        const latestSpread = parseFloat((latestInfo.Buy_Sell_Spread || "0").replace(/,/g, '')) / 1000000;
+        const latestSpread = parseFloat((latestInfo.Buy_Sell_Spread || "0").replace(/,/g, '')) / 100000000;
         
         const kpiEl = document.getElementById('foreignCurrentValue');
         if(kpiEl) {
-          kpiEl.innerText = `${latestSpread >= 0 ? '+' : ''}${latestSpread.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+          kpiEl.innerText = `${latestSpread >= 0 ? '+' : ''}${latestSpread.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}`;
           kpiEl.className = `metric-value ${latestSpread >= 0 ? 'text-red' : 'text-green'}`;
         }
 
@@ -125,15 +121,15 @@ async function fetchTWSEForeign() {
     console.warn("API Fetch failed, using fallback data for Foreign Inv", e);
     const m = generateForeignMockHistory(10);
     
-    // KPI Fallback Fix
-    const latestSpread = m[m.length-1].Buy_Sell_Spread;
+    // Fallback logic formatting for 億
+    const latestSpread = m[m.length-1].Buy_Sell_Spread / 100000000;
     const kpiEl = document.getElementById('foreignCurrentValue');
     if(kpiEl) {
-      kpiEl.innerText = `${latestSpread >= 0 ? '+' : ''}${latestSpread.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+      kpiEl.innerText = `${latestSpread >= 0 ? '+' : ''}${latestSpread.toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1})}`;
       kpiEl.className = `metric-value ${latestSpread >= 0 ? 'text-red' : 'text-green'}`;
     }
 
-    drawForeignChart(m.map((_, i) => getPastDateLabel(10 - i)), m.map(item => item.Buy_Sell_Spread));
+    drawForeignChart(m.map((_, i) => getPastDateLabel(10 - i)), m.map(item => item.Buy_Sell_Spread / 100000000));
   } finally {
     if (loading) loading.classList.remove('active');
   }
@@ -141,37 +137,13 @@ async function fetchTWSEForeign() {
 
 // --- Dynamic Range Rendering for TAIEX ---
 
-function renderTaiexChart(range) {
+function renderTaiexChart() {
   if (!taiexRawData || taiexRawData.length === 0) return;
   
-  let labels = [];
-  let data = [];
-  
-  if (range === 'day') {
-    const latestClose = parseFloat(taiexRawData[taiexRawData.length - 1].TAIEX.replace(/,/g, ''));
-    let current = latestClose * 0.99; 
-    for(let i=0; i<60; i++) {
-       let h = 9 + Math.floor(i*4.5/60);
-       let m = Math.floor((i*4.5)%60).toString().padStart(2, '0');
-       labels.push(`${h}:${m}`);
-       if (i === 59) { data.push(latestClose); } 
-       else { current += (Math.random() - 0.45) * 20; data.push(current); }
-    }
-  } else if (range === 'week') {
-    const sliced = taiexRawData.slice(-5);
-    labels = sliced.map(getLabel);
-    data = sliced.map(getVal);
-  } else if (range === 'month') {
-    const sliced = taiexRawData.slice(-22);
-    labels = sliced.map(getLabel);
-    data = sliced.map(getVal);
-  } else if (range === 'year') {
-    const latestClose = parseFloat(taiexRawData[taiexRawData.length - 1].TAIEX.replace(/,/g, ''));
-    let mData = generateMockDailyData(latestClose * 0.8, 250, 150).data;
-    mData[mData.length - 1] = latestClose; 
-    data = mData;
-    for(let i=250; i>0; i--) { labels.push(getPastDateLabel(i)); }
-  }
+  // Directly extract exactly past 10 days
+  const sliced = taiexRawData.slice(-10);
+  const labels = sliced.map(getLabel);
+  const data = sliced.map(getVal);
   
   drawTaiexChart(labels, data);
   
@@ -184,17 +156,6 @@ function renderTaiexChart(range) {
     return parseFloat(item.val);
   }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  const taiexFilters = document.querySelectorAll('#taiex-filters .filter-btn');
-  taiexFilters.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      taiexFilters.forEach(b => b.classList.remove('active'));
-      e.target.classList.add('active');
-      renderTaiexChart(e.target.dataset.range);
-    });
-  });
-});
 
 // --- Chart Draw Implementations ---
 
@@ -230,7 +191,7 @@ function drawTaiexChart(labels, data) {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        x: { grid: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 7 } },
+        x: { grid: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 10 } },
         y: {
           grid: { color: colors.grid, drawBorder: false },
           border: { dash: [4, 4] },
@@ -251,10 +212,10 @@ function drawForeignChart(labels, data) {
     data: {
       labels: labels,
       datasets: [{
-        label: '淨買賣超 (百萬)',
+        label: '淨買賣超 (億)',
         data: data,
         backgroundColor: data.map(val => val >= 0 ? colors.up : colors.down),
-        borderRadius: 0, // Rectangular bars (feature requested)
+        borderRadius: 0,
         barPercentage: 0.6
       }]
     },
@@ -287,12 +248,12 @@ function generateMockDailyData(start, count, vol) {
     price += (Math.random()-0.45)*vol; 
     res.push({ label: getPastDateLabel(i), val: price.toFixed(0), TAIEX: price.toFixed(0), Change: "10" }); 
   }
-  return { data: res.map(r => parseFloat(r.val)) }; // Modified for year prepending
+  return res; // Reverted back to exact Array to fix parsing crash
 }
 
 function generateForeignMockHistory(count) {
   let res = [];
-  for(let i=0; i<count; i++) { res.push({ Buy_Sell_Spread: (Math.random()-0.5)*20000 }); }
+  for(let i=0; i<count; i++) { res.push({ Buy_Sell_Spread: (Math.random()-0.5)*20000000000 }); } // Adjusted mock scale
   return res;
 }
 

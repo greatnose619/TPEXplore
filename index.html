@@ -23,15 +23,21 @@
       <div class="logo">
         <span>TPEXplore</span>
       </div>
-      <div class="last-updated text-muted text-sm">
-        最後更新時間：今天 10:10 AM
+      <div class="flex-row gap-16" style="align-items: center;">
+        <div class="last-updated text-muted text-sm">
+          資料最後同步時間：--
+        </div>
+        <button class="refresh-btn" id="refreshBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+          重新整理
+        </button>
       </div>
     </div>
   </header>
 
   <main class="main-content max-w-1280 mx-auto flex-col gap-16">
     
-    <section class="metrics-grid">
+    <section class="metrics-grid animate-slide-up">
       <div class="card metric-card flex-col" id="taiexCard">
         <div class="card-header">
           <span class="metric-title">本日加權指數</span>
@@ -39,15 +45,6 @@
         <div class="card-content metric-value-row" style="justify-content: flex-start; gap: 8px; align-items: center;">
           <h2 class="metric-value" id="taiexCurrentValue">--</h2>
           <span id="taiexTrendIcon"></span>
-        </div>
-      </div>
-      
-      <div class="card metric-card flex-col" id="foreignCard">
-        <div class="card-header">
-          <span class="metric-title">本日外資淨買賣 (億)</span>
-        </div>
-        <div class="card-content metric-value-row">
-          <h2 class="metric-value" id="foreignCurrentValue">--</h2>
         </div>
       </div>
       
@@ -60,9 +57,18 @@
           <span id="volumeTrendIcon"></span>
         </div>
       </div>
+
+      <div class="card metric-card flex-col" id="foreignCard">
+        <div class="card-header">
+          <span class="metric-title">本日外資淨買賣 (億)</span>
+        </div>
+        <div class="card-content metric-value-row">
+          <h2 class="metric-value" id="foreignCurrentValue">--</h2>
+        </div>
+      </div>
     </section>
 
-    <section class="charts-grid w-full">
+    <section class="charts-grid w-full animate-slide-up stagger-1">
       
       <div class="card chart-container">
         <div class="card-header">
@@ -75,8 +81,8 @@
         </div>
         
         <div class="card-content">
-          <div class="loading-wrapper" id="taiexLoading">
-            <div class="spinner"></div>
+          <div class="loading-wrapper active" id="taiexLoading">
+            <div class="skeleton skeleton-chart"></div>
           </div>
           <div class="canvas-wrapper">
             <canvas id="taiexChart"></canvas>
@@ -95,8 +101,8 @@
         </div>
         
         <div class="card-content">
-          <div class="loading-wrapper" id="foreignLoading">
-            <div class="spinner"></div>
+          <div class="loading-wrapper active" id="foreignLoading">
+            <div class="skeleton skeleton-chart"></div>
           </div>
           <div class="canvas-wrapper">
             <canvas id="foreignChart"></canvas>
@@ -106,23 +112,40 @@
       
     </section>
 
-    <section class="charts-grid w-full">
+    <section class="charts-grid w-full animate-slide-up stagger-2">
       
-      <div class="card ptt-container flex-col">
-        <div class="card-header flex-row items-center" style="gap: 12px;">
-          <h4 class="card-title">PTT Stock 輿情分析</h4>
-          <span class="badge caution">震盪保守 (Caution)</span>
+      <div class="card social-container flex-col">
+        <div class="card-header row-between" style="flex-direction: row; align-items: center;">
+          <h4 class="card-title">社群輿情分析</h4>
+          <div class="button-group">
+            <button class="tab-btn active" id="pttTabBtn">PTT Stock</button>
+            <button class="tab-btn" id="dcardTabBtn">Dcard Stock</button>
+          </div>
         </div>
         
-        <div class="card-content ptt-summary flex-col">
-          <p class="text-muted text-sm leading-relaxed" style="margin-bottom: 1rem;">
-            近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
-          </p>
+        <div class="card-content">
+          <!-- PTT Tab Content -->
+          <div class="tab-content ptt-summary active" id="pttContent">
+            <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">
+              近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
+            </p>
+            <div class="flex-row gap-8">
+              <div class="badge badge-red">🔥台積電</div>
+              <div class="badge badge-red">🔥重電</div>
+              <div class="badge badge-red">🔥低軌衛星</div>
+            </div>
+          </div>
 
-          <div class="flex-row gap-16">
-            <div class="stock-tag">1. 台積電 (2330)<span class="text-green">創高回檔</span></div>
-            <div class="stock-tag">2. 鴻海 (2317)<span class="text-green">外資賣壓</span></div>
-            <div class="stock-tag">3. 中興電 (1513)<span class="text-red">避險買盤</span></div>
+          <!-- Dcard Tab Content -->
+          <div class="tab-content dcard-summary" id="dcardContent">
+            <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">
+              Dcard 近期討論度最高的莫過於台積電的法說會預期與美股財報週的聯動。許多年輕投資者對於半導體龍頭的回檔表示擔憂，但也有一派聲音認為現在是分批布局的好時機。此外，高股息 ETF 的成分股調整也是熱門話題。
+            </p>
+            <div class="flex-row gap-8">
+              <div class="badge badge-red">🔥法說會</div>
+              <div class="badge badge-red">🔥高股息</div>
+              <div class="badge badge-red">🔥半導體</div>
+            </div>
           </div>
         </div>
       </div>
@@ -130,7 +153,7 @@
       <div class="card news-container flex-col">
         <div class="card-header flex-col gap-16">
           <div class="card-header-actions">
-            <h4 class="card-title">近期情勢摘要</h4>
+            <h4 class="card-title">近期市場情勢摘要</h4>
           </div>
         </div>
         <div class="card-content">
@@ -138,6 +161,11 @@
             以 2026 年 3 月底最新盤勢分析，台股大盤目前正試圖在三萬三千點 (33,000) 高檔區間建立支撐。受到近期國際地緣政治與美股科技類股震盪拖累，扮演穩盤重心的權值雙雄（台積電、鴻海）承受了較大的外資調節賣壓。<br><br>
             然而，最新市場籌碼數據顯示，避險資金正迅速進行產業輪動，包括低軌衛星、塑化原物料以及受惠於政府強韌電網政策的重電族群，成為了短線資金停泊的首選。法人指出，投資人現階段應以「居高思危」為操作原則，靜待接下來的財報效應落定。
           </p>
+          <div class="flex-row gap-8" style="margin-top: 1.25rem;">
+            <div class="badge badge-blue">居高思危</div>
+            <div class="badge badge-blue">財報效應</div>
+            <div class="badge badge-blue">強韌電網</div>
+          </div>
         </div>
       </div>
 
@@ -148,6 +176,11 @@
   <footer class="footer max-w-1280 mx-auto">
     <p class="text-muted text-sm tracking-tight">© 2026 TPEXplore. Data provided by TWSE. Dashboard powered by shadcn/ui styles.</p>
   </footer>
+
+  <!-- Global Tooltips (Moved to escape stacking contexts) -->
+  <div class="tooltip-bubble" id="taiexTooltip">相較於昨日，--</div>
+  <div class="tooltip-bubble" id="volumeTooltip">相較於昨日，--</div>
+  <div class="tooltip-bubble" id="foreignTooltip">相較於昨日，--</div>
 
   <script src="app.js"></script>
 </body>

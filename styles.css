@@ -24,6 +24,9 @@
   --radius: 0.5rem;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --gap-16: 16px;
+
+  /* Animation Timing */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
 }
 
 /* Base Styles */
@@ -51,6 +54,27 @@ body {
 .flex-col { display: flex; flex-direction: column; }
 .flex-row { display: flex; flex-direction: row; flex-wrap: wrap; }
 .row-between { display: flex; justify-content: space-between; align-items: center; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes skeletonScan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-fade-in { animation: fadeIn 0.4s var(--ease-out) forwards; }
+.animate-slide-up { opacity: 0; animation: slideUp 0.5s var(--ease-out) forwards; }
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
 
 /* Apply strict 16px gap universally */
 .gap-16 { gap: var(--gap-16); }
@@ -107,6 +131,13 @@ body {
   padding: 16px; /* Unified to 16px */
   padding-top: 0;
 }
+.card-content p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 400;
+  color: hsl(var(--foreground));
+  margin: 0;
+}
 
 /* Header & Logo */
 .header {
@@ -130,6 +161,32 @@ body {
   color: hsl(var(--foreground));
 }
 .logo-icon { width: 1.25rem; height: 1.25rem; }
+
+.refresh-btn {
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition);
+}
+.refresh-btn:hover {
+  background: hsl(var(--accent));
+}
+.refresh-btn:active { transform: scale(0.95); }
+.refresh-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+.refresh-btn.loading svg {
+  animation: rotation 1s linear infinite;
+}
 
 /* Main Content Padding */
 .main-content {
@@ -157,6 +214,33 @@ body {
   background-color: hsl(var(--market-down) / 0.1);
 }
 
+/* Tooltip Bubble Styles */
+.metric-card {
+  position: relative;
+  cursor: default; /* Keep original cursor */
+}
+.tooltip-bubble {
+  position: fixed; /* Fixed relative to viewport for mouse tracking */
+  background: hsl(var(--foreground));
+  color: hsl(var(--background));
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-out);
+  z-index: 1000; /* Above Header */
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+  display: block; /* Managed via opacity in JS */
+}
+.metric-card {
+  position: relative;
+  cursor: default; /* Keep original cursor */
+}
+/* Removed tooltip-bubble CSS hover as it's now body-level and managed via JS */
+
 .metric-title {
   font-size: 0.875rem;
   font-weight: 500;
@@ -178,26 +262,65 @@ body {
 .badge {
   display: inline-flex;
   align-items: center;
-  border-radius: calc(var(--radius) - 2px);
-  padding: 0.25rem 0.625rem;
+  border-radius: 9999px; /* Pill style */
+  padding: 0.125rem 0.625rem;
   font-size: 0.75rem;
-  font-weight: 600;
-  transition: background-color 0.2s;
-  border: 1px solid transparent;
+  font-weight: 500;
+  border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--foreground));
   gap: 0.25rem;
+  transition: var(--transition);
 }
-.badge.red { color: hsl(var(--market-up)); background: var(--market-up-bg); }
-.badge.green { color: hsl(var(--market-down)); background: var(--market-down-bg); }
+.badge.red { color: hsl(var(--market-up)); background: var(--market-up-bg); border-color: hsl(var(--market-up) / 0.2); }
+.badge.green { color: hsl(var(--market-down)); background: var(--market-down-bg); border-color: hsl(var(--market-down) / 0.2); }
 .badge.neutral { 
-  color: hsl(var(--foreground)); 
-  background: hsl(var(--secondary));
+  background-color: hsl(var(--secondary));
 }
 .badge.caution {
   color: hsl(var(--market-down));
   background: hsla(142, 71%, 45%, 0.1);
   border: 1px solid hsl(var(--market-down) / 0.5);
-  border-radius: 9999px; /* full rounded */
 }
+.badge-fire {
+  background-color: hsl(var(--secondary));
+  border-color: hsl(var(--border));
+  padding: 4px 10px;
+}
+.badge-fire:hover {
+  background-color: hsl(var(--accent));
+}
+
+.badge-blue {
+  background-color: hsla(217, 91%, 60%, 0.1);
+  border-color: hsla(217, 91%, 60%, 0.2);
+  color: hsl(217, 91%, 70%);
+  padding: 4px 10px;
+}
+.badge-blue:hover {
+  background-color: hsla(217, 91%, 60%, 0.2);
+}
+
+.badge-red {
+  background-color: hsla(0, 91%, 60%, 0.1);
+  border-color: hsla(0, 91%, 60%, 0.2);
+  color: hsl(0, 91%, 70%);
+  padding: 4px 10px;
+}
+.badge-red:hover {
+  background-color: hsla(0, 91%, 60%, 0.2);
+}
+
+.badge-red {
+  background-color: hsla(0, 91%, 60%, 0.1);
+  border-color: hsla(0, 91%, 60%, 0.2);
+  color: hsl(0, 91%, 70%);
+  padding: 4px 10px;
+}
+.badge-red:hover {
+  background-color: hsla(0, 91%, 60%, 0.2);
+}
+
 .badge svg { width: 0.875rem; height: 0.875rem; }
 
 /* Tooltip definitions */
@@ -213,7 +336,7 @@ body {
   font-size: 0.75rem;
   font-style: normal;
   font-weight: bold;
-  cursor: help;
+  cursor: default; /* Maintain default cursor as requested */
   position: relative;
 }
 .info-icon:hover::after {
@@ -286,8 +409,64 @@ body {
   font-weight: 500;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 8px; /* Unified to 8px gap for badges */
 }
+.gap-8 { gap: 8px !important; }
+
+/* Social Tabs as Button Group */
+.button-group {
+  display: inline-flex;
+  background-color: hsl(var(--muted));
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--border));
+}
+.button-group .tab-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 12px;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.button-group .tab-btn:hover {
+  color: hsl(var(--foreground));
+}
+.button-group .tab-btn.active {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: flex; flex-direction: column; }
+
+/* Critical Requirement: PTT/Dcard summary text to WHITE is now handled by unified p style if needed, but keeping specificity */
+.ptt-summary p, 
+.dcard-summary p { 
+  color: hsl(0, 0%, 100%) !important; 
+}
+
+/* Skeleton Loaders */
+.skeleton {
+  background-color: hsl(var(--muted));
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, hsla(0,0%,100%,0.05), transparent);
+  animation: skeletonScan 1.5s infinite;
+}
+.skeleton-text { height: 1rem; margin-bottom: 0.5rem; width: 100%; }
+.skeleton-title { height: 1.5rem; margin-bottom: 1rem; width: 60%; }
+.skeleton-chart { height: 280px; width: 100%; }
 
 /* News Feed Grid (8 items, 4 per row, 2 rows) */
 .news-feed {

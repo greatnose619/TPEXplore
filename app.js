@@ -37,15 +37,24 @@ function updateLastUpdatedTime() {
   const timeEl = document.querySelector('.last-updated');
   if (timeEl) {
     const now = new Date();
-    timeEl.innerText = `資料最後同步時間：${now.toLocaleString()}`;
+    const hours = now.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    const pad = (num) => String(num).padStart(2, '0');
+    
+    const timeStr = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()} ${pad(displayHours)}:${pad(now.getMinutes())}:${pad(now.getSeconds())} ${ampm}`;
+    timeEl.innerText = `資料最後同步時間：${timeStr}`;
   }
 }
 
 // --- API Fetchers (FinMind API - CORS Friendly open data) ---
 
 async function fetchData() {
+  const refreshBtn = document.getElementById('refreshBtn');
   const taiexLoading = document.getElementById('taiexLoading');
   const foreignLoading = document.getElementById('foreignLoading');
+  
+  if (refreshBtn) refreshBtn.classList.add('loading');
   if (taiexLoading) taiexLoading.classList.add('active');
   if (foreignLoading) foreignLoading.classList.add('active');
   
@@ -69,8 +78,9 @@ async function fetchData() {
       const taiexEl = document.getElementById('taiexCurrentValue');
       if (taiexEl) taiexEl.innerText = latest.close.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-      const upSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red"><path d="m18 15-6-6-6 6"/></svg>';
-      const downSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green"><path d="m6 9 6 6 6-6"/></svg>';
+      // Requested: Arrow with small tail (stem) - Distinctive paths
+      const upSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-red"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+      const downSvg = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-green"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
 
       const taiexCard = document.getElementById('taiexCard');
       const taiexTrendIcon = document.getElementById('taiexTrendIcon');
@@ -84,6 +94,14 @@ async function fetchData() {
           if (taiexTrendIcon) taiexTrendIcon.innerHTML = downSvg;
         } else {
           if (taiexTrendIcon) taiexTrendIcon.innerHTML = '';
+        }
+
+        // TAIEX Tooltip: Percentage change
+        const taiexTooltip = document.getElementById('taiexTooltip');
+        if (taiexTooltip && prev) {
+          const pct = ((latest.close - prev.close) / prev.close * 100).toFixed(2);
+          const direction = latest.close >= prev.close ? '上升' : '下降';
+          taiexTooltip.innerText = `相較於昨日，${direction} ${Math.abs(pct)}%`;
         }
       }
 
@@ -105,6 +123,14 @@ async function fetchData() {
           if (volumeTrendIcon) volumeTrendIcon.innerHTML = downSvg;
         } else {
           if (volumeTrendIcon) volumeTrendIcon.innerHTML = '';
+        }
+
+        // Volume Tooltip: Percentage change
+        const volumeTooltip = document.getElementById('volumeTooltip');
+        if (volumeTooltip && prev) {
+          const pct = ((volInHundredMillion - prevVolInHundredMillion) / prevVolInHundredMillion * 100).toFixed(2);
+          const direction = volInHundredMillion >= prevVolInHundredMillion ? '上升' : '下降';
+          volumeTooltip.innerText = `相較於昨日，${direction} ${Math.abs(pct)}%`;
         }
       }
 
@@ -136,6 +162,16 @@ async function fetchData() {
           else if (latestSpreadInHundredMillion < 0) foreignCard.classList.add('is-down');
         }
 
+        // Foreign Tooltip: Absolute change (Since it crosses zero)
+        const foreignTooltip = document.getElementById('foreignTooltip');
+        if (foreignTooltip && history.length > 1) {
+          const prevLatest = history[history.length - 2];
+          const prevLatestSpread = (prevLatest.buy - prevLatest.sell) / 100000000;
+          const diff = latestSpreadInHundredMillion - prevLatestSpread;
+          const direction = diff >= 0 ? '增加' : '減少';
+          foreignTooltip.innerText = `相較於昨日，買賣超金額${direction} ${Math.abs(diff.toFixed(1))} 億`;
+        }
+
         // Draw Foreign Chart
         const labels = history.map(item => item.date.slice(5).replace('-', '/'));
         const spreadData = history.map(item => (item.buy - item.sell) / 100000000);
@@ -157,6 +193,7 @@ async function fetchData() {
       if (el) el.innerText = "連線失敗";
     });
   } finally {
+    if (refreshBtn) refreshBtn.classList.remove('loading');
     if (taiexLoading) taiexLoading.classList.remove('active');
     if (foreignLoading) foreignLoading.classList.remove('active');
   }
@@ -213,7 +250,7 @@ function drawTaiexChart(labels, data) {
         y: {
           grid: { color: colors.grid, drawBorder: false },
           border: { dash: [4, 4] },
-          min: Math.min(...data) * 0.985 
+          min: Math.floor(Math.min(...data) / 100) * 100 
         }
       },
       interaction: { mode: 'index', intersect: false },
@@ -252,7 +289,67 @@ function drawForeignChart(labels, data) {
   });
 }
 
+// --- Tab Logic ---
+function initTabs() {
+  const pttTabBtn = document.getElementById('pttTabBtn');
+  const dcardTabBtn = document.getElementById('dcardTabBtn');
+  const pttContent = document.getElementById('pttContent');
+  const dcardContent = document.getElementById('dcardContent');
+
+  if (!pttTabBtn || !dcardTabBtn) return;
+
+  pttTabBtn.addEventListener('click', () => {
+    pttTabBtn.classList.add('active');
+    dcardTabBtn.classList.remove('active');
+    pttContent.classList.add('active');
+    dcardContent.classList.remove('active');
+  });
+
+  dcardTabBtn.addEventListener('click', () => {
+    dcardTabBtn.classList.add('active');
+    pttTabBtn.classList.remove('active');
+    dcardContent.classList.add('active');
+    pttContent.classList.remove('active');
+  });
+}
+
+// --- Tooltip Mouse Tracking ---
+function initTooltips() {
+  const mapping = {
+    'taiexCard': 'taiexTooltip',
+    'volumeCard': 'volumeTooltip',
+    'foreignCard': 'foreignTooltip'
+  };
+
+  Object.entries(mapping).forEach(([cardId, tooltipId]) => {
+    const card = document.getElementById(cardId);
+    const bubble = document.getElementById(tooltipId);
+    if (!card || !bubble) return;
+
+    card.addEventListener('mouseenter', () => {
+      bubble.style.opacity = '1';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      bubble.style.opacity = '0';
+    });
+
+    card.addEventListener('mousemove', (e) => {
+      // Offset by 15px to avoid jumping or covering the cursor
+      bubble.style.left = (e.clientX + 15) + 'px';
+      bubble.style.top = (e.clientY + 15) + 'px';
+    });
+  });
+}
+
 // --- DOM Ready ---
 document.addEventListener('DOMContentLoaded', () => {
   fetchData();
+  initTabs();
+  initTooltips();
+
+  const refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => fetchData());
+  }
 });

@@ -221,18 +221,18 @@ body {
 }
 .tooltip-bubble {
   position: fixed; /* Fixed relative to viewport for mouse tracking */
-  background: hsl(var(--foreground));
-  color: hsl(var(--background));
+  background: hsl(0, 0%, 9%); /* Pure blackish dark theme */
+  color: hsl(0, 0%, 98%);     /* Pure white */
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s var(--ease-out);
-  z-index: 1000; /* Above Header */
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+  z-index: 10000; /* Extremely high to stay top */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   display: block; /* Managed via opacity in JS */
 }
 .metric-card {
@@ -566,6 +566,33 @@ a.news-link {
 @keyframes rotation {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Industry Table Styles */
+.industry-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+.industry-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+  border-bottom: 1px solid hsl(var(--border));
+}
+.industry-table td {
+  padding: 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+}
+.industry-table tr:last-child td {
+  border-bottom: none;
+}
+.industry-table tr:hover {
+  background-color: hsl(var(--muted) / 0.3);
 }
 
 /* Responsive Constraints */

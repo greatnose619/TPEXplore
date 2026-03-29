@@ -7,13 +7,14 @@
 // --- Global Chart.js configuration ---
 Chart.defaults.color = 'hsl(0, 0%, 63.9%)'; 
 Chart.defaults.font.family = "'Inter', 'Noto Sans TC', sans-serif";
-Chart.defaults.plugins.tooltip.backgroundColor = 'hsl(0, 0%, 14.9%)';
+Chart.defaults.plugins.tooltip.backgroundColor = 'hsl(0, 0%, 9%)';
 Chart.defaults.plugins.tooltip.titleColor = 'hsl(0, 0%, 98%)';
 Chart.defaults.plugins.tooltip.bodyColor = 'hsl(0, 0%, 98%)';
-Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.padding = { top: 8, bottom: 8, left: 12, right: 12 };
 Chart.defaults.plugins.tooltip.cornerRadius = 6;
-Chart.defaults.plugins.tooltip.borderColor = 'hsl(0, 0%, 20%)';
+Chart.defaults.plugins.tooltip.borderColor = 'hsla(0, 0%, 100%, 0.1)';
 Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.displayColors = false; // Match the info-icon clean look
 
 const colors = {
   up: 'hsl(0, 84%, 60%)',
@@ -27,10 +28,11 @@ const colors = {
 let taiexChartInstance = null;
 let foreignChartInstance = null;
 let taiexRawData = []; 
+let foreignRawData = []; // Store for range switching
 
 // Calculate start date (going back 21 days ensures we get at least 10 trading days even with weekends/holidays)
 const d = new Date();
-d.setDate(d.getDate() - 21);
+d.setDate(d.getDate() - 100); // Expanded to 100 days for 3-month filters
 const fallbackStartDate = d.toISOString().split('T')[0];
 
 function updateLastUpdatedTime() {
@@ -96,12 +98,12 @@ async function fetchData() {
           if (taiexTrendIcon) taiexTrendIcon.innerHTML = '';
         }
 
-        // TAIEX Tooltip: Percentage change
+        // TAIEX Tooltip: Previous day data + Change
         const taiexTooltip = document.getElementById('taiexTooltip');
         if (taiexTooltip && prev) {
           const pct = ((latest.close - prev.close) / prev.close * 100).toFixed(2);
           const direction = latest.close >= prev.close ? '上升' : '下降';
-          taiexTooltip.innerText = `相較於昨日，${direction} ${Math.abs(pct)}%`;
+          taiexTooltip.innerText = `前一交易日 ${prev.close.toLocaleString(undefined, {minimumFractionDigits: 2})}, ${direction} ${Math.abs(pct)}%`;
         }
       }
 
@@ -125,12 +127,12 @@ async function fetchData() {
           if (volumeTrendIcon) volumeTrendIcon.innerHTML = '';
         }
 
-        // Volume Tooltip: Percentage change
+        // Volume Tooltip: Previous day volume + Change
         const volumeTooltip = document.getElementById('volumeTooltip');
         if (volumeTooltip && prev) {
           const pct = ((volInHundredMillion - prevVolInHundredMillion) / prevVolInHundredMillion * 100).toFixed(2);
           const direction = volInHundredMillion >= prevVolInHundredMillion ? '上升' : '下降';
-          volumeTooltip.innerText = `相較於昨日，${direction} ${Math.abs(pct)}%`;
+          volumeTooltip.innerText = `前一交易日 ${prevVolInHundredMillion.toLocaleString(undefined, {maximumFractionDigits: 0})} 億, ${direction} ${Math.abs(pct)}%`;
         }
       }
 
@@ -139,13 +141,12 @@ async function fetchData() {
 
     // -- 2. Process Foreign Data --
     if (foreignJson.data && foreignJson.data.length > 0) {
-      // Filter out only Global Foreign Investors
-      const foreignData = foreignJson.data.filter(item => item.name === 'Foreign_Investor');
-      
-      if (foreignData.length > 0) {
-        const history = foreignData.slice(-10); // Strictly the last 10 days
-        
-        const latest = history[history.length - 1];
+      foreignRawData = foreignJson.data.filter(item => item.name === 'Foreign_Investor');
+      if (foreignRawData.length > 0) {
+        // Initial Draw: Default to 10 days (or "1 Week" approx)
+        updateForeignRange(7); 
+
+        const latest = foreignRawData[foreignRawData.length - 1];
         const latestSpreadInHundredMillion = (latest.buy - latest.sell) / 100000000;
         
         // Update Foreign KPI
@@ -162,23 +163,21 @@ async function fetchData() {
           else if (latestSpreadInHundredMillion < 0) foreignCard.classList.add('is-down');
         }
 
-        // Foreign Tooltip: Absolute change (Since it crosses zero)
+        // Foreign Tooltip: Previous day flow + Change
         const foreignTooltip = document.getElementById('foreignTooltip');
-        if (foreignTooltip && history.length > 1) {
-          const prevLatest = history[history.length - 2];
+        if (foreignTooltip && foreignRawData.length > 1) {
+          const prevLatest = foreignRawData[foreignRawData.length - 2];
           const prevLatestSpread = (prevLatest.buy - prevLatest.sell) / 100000000;
           const diff = latestSpreadInHundredMillion - prevLatestSpread;
+          const pct = prevLatestSpread !== 0 ? ((diff / Math.abs(prevLatestSpread)) * 100).toFixed(2) : '--';
           const direction = diff >= 0 ? '增加' : '減少';
-          foreignTooltip.innerText = `相較於昨日，買賣超金額${direction} ${Math.abs(diff.toFixed(1))} 億`;
+          foreignTooltip.innerText = `前一交易日 ${prevLatestSpread.toFixed(1)} 億, ${direction} ${Math.abs(diff).toFixed(1)} 億 (${pct}%)`;
         }
-
-        // Draw Foreign Chart
-        const labels = history.map(item => item.date.slice(5).replace('-', '/'));
-        const spreadData = history.map(item => (item.buy - item.sell) / 100000000);
-        
-        drawForeignChart(labels, spreadData);
       }
     }
+
+    // -- 3. Process Industry Data --
+    fetchIndustryPerformance();
 
     // Explicitly update time only when logic completes without throwing
     updateLastUpdatedTime();
@@ -213,6 +212,124 @@ function renderTaiexChart() {
 }
 
 // --- Chart Draw Implementations ---
+
+// --- Foreign Range Logic ---
+function updateForeignRange(days) {
+  if (!foreignRawData || foreignRawData.length === 0) return;
+  
+  const filtered = foreignRawData.slice(-days);
+  const labels = filtered.map(item => item.date.slice(5).replace('-', '/'));
+  const data = filtered.map(item => (item.buy - item.sell) / 100000000);
+  
+  drawForeignChart(labels, data);
+}
+
+function initRangeFilters() {
+  const group = document.getElementById('foreignRangeGroup');
+  if (!group) return;
+
+  group.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+
+    // UI Toggle
+    group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Logic
+    const range = parseInt(btn.dataset.range);
+    updateForeignRange(range);
+  });
+}
+
+// --- Industry Performance Analysis ---
+async function fetchIndustryPerformance() {
+  const loading = document.getElementById('industryLoading');
+  const tbody = document.getElementById('industryBody');
+  
+  // Use a smaller date range for industry proxies
+  const d_ind = new Date();
+  d_ind.setDate(d_ind.getDate() - 14);
+  const indStartDate = d_ind.toISOString().split('T')[0];
+
+  const industries = [
+    { title: '半導體 (台積電)', id: '2330' },
+    { title: '電腦週邊 (鴻海)', id: '2317' },
+    { title: '航運業 (長榮)', id: '2603' },
+    { title: '觀光餐飲 (晶華)', id: '2707' },
+    { title: '電子通路 (大聯大)', id: '3702' }
+  ];
+
+  try {
+    // Parallel Fetch for Price & Institutional Movement (Stock-specific dataset)
+    const [priceData, instData] = await Promise.all([
+      Promise.all(industries.map(ind => 
+        fetch(`https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=${ind.id}&start_date=${indStartDate}`).then(res => res.json())
+      )),
+      Promise.all(industries.map(ind => 
+        fetch(`https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInstitutionalInvestorsBuySell&data_id=${ind.id}&start_date=${indStartDate}`).then(res => res.json())
+      ))
+    ]);
+
+    const performance = industries.map((ind, i) => {
+      const pJson = priceData[i].data;
+      const iJson = instData[i].data;
+      
+      if (!pJson || pJson.length < 2) return null;
+      
+      const latestPrice = pJson[pJson.length - 1];
+      const prevPrice = pJson[pJson.length - 2];
+      const change = ((latestPrice.close - prevPrice.close) / prevPrice.close * 100);
+      const volume = latestPrice.Trading_money / 100000000; // Value in 億
+      
+      // Foreign Flow Calculation (InstitutionalInvestorsBuySell returns SHARES, need to convert to money value in 億)
+      let netFlow = 0;
+      if (iJson) {
+        const latestInst = iJson.filter(item => item.date === latestPrice.date && item.name === 'Foreign_Investor')[0];
+        if (latestInst) {
+          netFlow = ((latestInst.buy - latestInst.sell) * latestPrice.close) / 100000000; // Value in 億
+        }
+      }
+
+      return {
+        name: ind.title,
+        close: latestPrice.close.toLocaleString(undefined, {minimumFractionDigits: 1}),
+        change: change,
+        volume: volume,
+        netFlow: netFlow,
+        isUp: change >= 0
+      };
+    }).filter(p => p !== null);
+
+    // Sort by performance (Descending)
+    performance.sort((a, b) => b.change - a.change);
+
+    if (tbody) {
+      if (performance.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground));">暫無精選產業數據</td></tr>';
+      } else {
+        tbody.innerHTML = performance.map(p => `
+          <tr>
+            <td>${p.name}</td>
+            <td style="text-align: right;">${p.close}</td>
+            <td style="text-align: right;" class="${p.isUp ? 'text-red' : 'text-green'}">
+              ${p.isUp ? '▲' : '▼'} ${Math.abs(p.change).toFixed(2)}%
+            </td>
+            <td style="text-align: right;">${p.volume.toLocaleString(undefined, {maximumFractionDigits: 1})} 億</td>
+            <td style="text-align: right;" class="${p.netFlow >= 0 ? 'text-red' : 'text-green'}">
+              ${p.netFlow >= 0 ? '+' : ''}${p.netFlow.toFixed(1)} 億
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    console.error("Industry fetch error:", err);
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: hsl(var(--market-up));">數據連線失敗</td></tr>';
+  } finally {
+    if (loading) loading.classList.remove('active');
+  }
+}
 
 function drawTaiexChart(labels, data) {
   const ctx = document.getElementById('taiexChart').getContext('2d');
@@ -347,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchData();
   initTabs();
   initTooltips();
+  initRangeFilters();
 
   const refreshBtn = document.getElementById('refreshBtn');
   if (refreshBtn) {

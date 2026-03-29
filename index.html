@@ -74,7 +74,7 @@
         <div class="card-header">
           <div class="card-header-actions">
             <h4 class="card-title">
-              近十日加權指數走勢
+              加權指數走勢
               <i class="info-icon" data-tooltip="資料來源: 台灣證券交易所 (TWSE)">i</i>
             </h4>
           </div>
@@ -91,12 +91,15 @@
       </div>
 
       <div class="card chart-container">
-        <div class="card-header">
-          <div class="card-header-actions">
-            <h4 class="card-title">
-              近十日外資買賣統計表
-              <i class="info-icon" data-tooltip="資料來源: 台灣證券交易所 (TWSE)">i</i>
-            </h4>
+        <div class="card-header row-between" style="flex-direction: row; align-items: center;">
+          <h4 class="card-title">
+            外資買賣統計表
+            <i class="info-icon" data-tooltip="資料來源: 台灣證券交易所 (TWSE)">i</i>
+          </h4>
+          <div class="button-group" id="foreignRangeGroup">
+            <button class="tab-btn active" data-range="7">近一週</button>
+            <button class="tab-btn" data-range="30">近一月</button>
+            <button class="tab-btn" data-range="90">近三月</button>
           </div>
         </div>
         
@@ -129,10 +132,10 @@
             <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">
               近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
             </p>
-            <div class="flex-row gap-8">
-              <div class="badge badge-red">🔥台積電</div>
-              <div class="badge badge-red">🔥重電</div>
-              <div class="badge badge-red">🔥低軌衛星</div>
+            <div class="flex-row gap-8" style="margin-top: 1.25rem;">
+              <div class="badge badge-red"><span>🔥</span>台積電</div>
+              <div class="badge badge-red"><span>🔥</span>重電</div>
+              <div class="badge badge-red"><span>🔥</span>低軌衛星</div>
             </div>
           </div>
 
@@ -141,10 +144,10 @@
             <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">
               Dcard 近期討論度最高的莫過於台積電的法說會預期與美股財報週的聯動。許多年輕投資者對於半導體龍頭的回檔表示擔憂，但也有一派聲音認為現在是分批布局的好時機。此外，高股息 ETF 的成分股調整也是熱門話題。
             </p>
-            <div class="flex-row gap-8">
-              <div class="badge badge-red">🔥法說會</div>
-              <div class="badge badge-red">🔥高股息</div>
-              <div class="badge badge-red">🔥半導體</div>
+            <div class="flex-row gap-8" style="margin-top: 1.25rem;">
+              <div class="badge badge-red"><span>🔥</span>法說會</div>
+              <div class="badge badge-red"><span>🔥</span>高股息</div>
+              <div class="badge badge-red"><span>🔥</span>半導體</div>
             </div>
           </div>
         </div>
@@ -153,7 +156,7 @@
       <div class="card news-container flex-col">
         <div class="card-header flex-col gap-16">
           <div class="card-header-actions">
-            <h4 class="card-title">近期市場情勢摘要</h4>
+            <h4 class="card-title">市場情勢摘要</h4>
           </div>
         </div>
         <div class="card-content">
@@ -169,6 +172,32 @@
         </div>
       </div>
 
+    <section class="animate-slide-up stagger-3">
+      <div class="card industry-container flex-col">
+        <div class="card-header">
+          <h4 class="card-title">股市題材與資金流向</h4>
+        </div>
+        <div class="card-content">
+          <div class="loading-wrapper active" id="industryLoading">
+            <div class="skeleton skeleton-text" style="height: 151px;"></div>
+          </div>
+          <table class="industry-table" id="industryTable">
+            <thead>
+              <tr>
+                <th>產業類別</th>
+                <th style="text-align: right;">今日收盤</th>
+                <th style="text-align: right;">總漲跌幅百分比</th>
+                <th style="text-align: right;">成交量 (億)</th>
+                <th style="text-align: right;">買超或賣超 (億)</th>
+              </tr>
+            </thead>
+            <tbody id="industryBody">
+              <!-- Dynamically populated -->
+              <tr><td colspan="5" style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground));">資料載入中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
   </main>

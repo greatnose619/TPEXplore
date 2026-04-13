@@ -131,6 +131,16 @@ body {
   padding: 16px; /* Unified to 16px */
   padding-top: 0;
 }
+.status-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--secondary));
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid hsl(var(--border));
+  letter-spacing: 0.02em;
+}
 .card-content p {
   font-size: 0.95rem;
   line-height: 1.6;

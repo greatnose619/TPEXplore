@@ -14,7 +14,7 @@ Chart.defaults.plugins.tooltip.padding = { top: 8, bottom: 8, left: 12, right: 1
 Chart.defaults.plugins.tooltip.cornerRadius = 6;
 Chart.defaults.plugins.tooltip.borderColor = 'hsla(0, 0%, 100%, 0.1)';
 Chart.defaults.plugins.tooltip.borderWidth = 1;
-Chart.defaults.plugins.tooltip.displayColors = false; // Match the info-icon clean look
+Chart.defaults.plugins.tooltip.displayColors = false; 
 
 const colors = {
   up: 'hsl(0, 84%, 60%)',
@@ -28,11 +28,11 @@ const colors = {
 let taiexChartInstance = null;
 let foreignChartInstance = null;
 let taiexRawData = []; 
-let foreignRawData = []; // Store for range switching
+let foreignRawData = []; 
 
-// Calculate start date (going back 21 days ensures we get at least 10 trading days even with weekends/holidays)
+// Calculate start date
 const d = new Date();
-d.setDate(d.getDate() - 100); // Expanded to 100 days for 3-month filters
+d.setDate(d.getDate() - 100); 
 const fallbackStartDate = d.toISOString().split('T')[0];
 
 function updateLastUpdatedTime() {
@@ -49,6 +49,128 @@ function updateLastUpdatedTime() {
   }
 }
 
+// --- Dynamic Content Store (Simulated AI Summaries) ---
+const contentStoreList = [
+  {
+    ptt: {
+      text: "近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。",
+      tags: ["台積電", "重電", "低軌衛星"]
+    },
+    dcard: {
+      text: "Dcard 近期討論度最高的莫過於台積電的法說會預期與美股財報週的聯動。許多年輕投資者對於半導體龍頭的回檔表示擔憂，但也有一派聲音認為現在是分批布局的好時機。此外，高股息 ETF 的成分股調整也是熱門話題。",
+      tags: ["法說會", "高股息", "半導體"]
+    },
+    summary: {
+      text: "以 2026 年 3 月底最新盤勢分析，台股大盤目前正試圖在三萬三千點 (33,000) 高檔區間建立支撐。受到近期國際地緣政治與美股科技類股震盪拖累，扮演穩盤重心的權值雙雄（台積電、鴻海）承受了較大的外資調節賣壓。<br><br>然而，最新市場籌碼數據顯示，避險資金正迅速進行產業輪動，包括低軌衛星、塑化原物料以及受惠於政府強韌電網政策的重電族群，成為了短線資金停泊的首選。法人指出，投資人現階段應以「居高思危」為操作原則，靜待接下來的財報效應落定。",
+      tags: ["居高思危", "財報效應", "強韌電網"]
+    },
+    hotStocks: ["中興電 (1513)", "華城 (1519)", "台積電 (2330)", "鴻海 (2317)", "啟碁 (6285)"]
+  },
+  {
+    ptt: {
+      text: "外資連續賣超引發鄉民熱議，不少人擔憂大盤可能跌破支撐線。版上出現不少『畢業文』，但也有老手認為這只是健康的回檔。散戶目前多半還是聚焦在有高殖利率保護的金融股或者防禦性標的。",
+      tags: ["外資賣超", "畢業文", "金融股"]
+    },
+    dcard: {
+      text: "最近因為股市震盪，版上出現很多關於『該不該停損』的討論。許多存股族仍然堅持『越跌越買』的策略，尤其是針對幾檔熱門的 ETF 系列。針對 AI 伺服器概念股的熱度似乎有稍微降溫的趨勢。",
+      tags: ["停損", "存股", "AI伺服器"]
+    },
+    summary: {
+      text: "近期盤勢受到國際資金板塊移動的影響，呈現較大幅度的震盪洗盤。大盤短線跌破了月線支撐，市場資金明顯偏向保守操作。<br><br>觀察這幾日的籌碼面，外資與投信出現土洋對作的現象。展望後市，需持續關注本週即將公布的美國就業數據與通膨指標，這將直接左右下半個月的台股風向。",
+      tags: ["震盪洗盤", "土洋對作", "通膨指標"]
+    },
+    hotStocks: ["兆豐金 (2886)", "中信金 (2891)", "元大高股息 (0056)", "國泰高股息 (00878)", "緯創 (3231)"]
+  },
+  {
+    ptt: {
+      text: "美股昨晚強勢反彈，帶動台股今日開高走高。鄉民一片歡呼，紛紛表示『舒服』、『主升段來了』。特別是 AI 相關概念股再度成為盤面焦點，資金明顯回流電子股，市場氣氛轉趨樂觀。",
+      tags: ["美股反彈", "AI概念股", "電子股"]
+    },
+    dcard: {
+      text: "大家都在討論今天台股的大漲，好多人開盤就追進去了！版上又開始熱烈討論未來的目標價，似乎上一週的陰霾一掃而空。不過還是有些人提醒不要追高，休閒等待拉回再買進比較安全。",
+      tags: ["大漲", "目標價", "不要追高"]
+    },
+    summary: {
+      text: "在美股科技巨頭財報優於預期的激勵下，台股順利突破近期的盤整區間，重新站回所有均線之上。電子權值股發揮了撐盤與領漲的雙重作用。<br><br>後續觀察重點在於成交量是否能持續溫和放大。若量能能夠配合，將有助於大盤展開新一波的多頭攻勢，投資人可留意基本面佳且具備題材性的科技類股。",
+      tags: ["財報優異", "突破盤整", "多頭攻勢"]
+    },
+    hotStocks: ["台積電 (2330)", "廣達 (2382)", "技嘉 (2376)", "緯穎 (6669)", "奇鋐 (3017)"]
+  }
+];
+
+function updateDynamicSections(isManual = false) {
+  const socialLoading = document.getElementById('socialLoading');
+  const summaryLoading = document.getElementById('summaryLoading');
+  const socialStatus = document.getElementById('socialStatus');
+  const summaryStatus = document.getElementById('summaryStatus');
+
+  if (isManual) {
+    if (socialLoading) socialLoading.classList.add('active');
+    if (summaryLoading) summaryLoading.classList.add('active');
+  }
+
+  // Simulate minimal delay for "syncing" feel
+  setTimeout(() => {
+    const contentStore = contentStoreList[Math.floor(Math.random() * contentStoreList.length)];
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    // Inject PTT
+    const pttEl = document.getElementById('pttContent');
+    if (pttEl) {
+      pttEl.innerHTML = `
+        <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">${contentStore.ptt.text}</p>
+        <div class="flex-row gap-8" style="margin-top: 1.25rem;">
+          ${contentStore.ptt.tags.map(tag => `<div class="badge badge-red"><span>🔥</span>${tag}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    // Inject Dcard
+    const dcardEl = document.getElementById('dcardContent');
+    if (dcardEl) {
+      dcardEl.innerHTML = `
+        <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">${contentStore.dcard.text}</p>
+        <div class="flex-row gap-8" style="margin-top: 1.25rem;">
+          ${contentStore.dcard.tags.map(tag => `<div class="badge badge-red"><span>🔥</span>${tag}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    // Inject Summary
+    const summaryEl = document.getElementById('marketSummaryContent');
+    if (summaryEl) {
+      summaryEl.innerHTML = `
+        <p class="card-description leading-relaxed text-base" style="color: hsl(var(--foreground));">${contentStore.summary.text}</p>
+        <div class="flex-row gap-8" style="margin-top: 1.25rem;">
+          ${contentStore.summary.tags.map(tag => `<div class="badge badge-blue">${tag}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    // Inject Hot Stocks
+    const hotStocksEl = document.getElementById('hotStocksContainer');
+    if (hotStocksEl && contentStore.hotStocks) {
+      hotStocksEl.innerHTML = contentStore.hotStocks.map(stock => `<div class="badge badge-blue">🔥 ${stock}</div>`).join('');
+    }
+
+    // Update Status Labels
+    if (socialStatus) socialStatus.innerText = `最後同步: ${timeStr}`;
+    if (summaryStatus) summaryStatus.innerText = `最後同步: ${timeStr}`;
+
+    if (socialLoading) socialLoading.classList.remove('active');
+    if (summaryLoading) summaryLoading.classList.remove('active');
+  }, isManual ? 800 : 0);
+}
+
+// Hourly Timer Logic
+function initHourlyTimer() {
+  // 每小時 (3600000 毫秒) 自動更新一次 PTT / DCARD 區塊
+  setInterval(() => {
+    updateDynamicSections(true); // 帶入 true 以顯示更新動畫
+  }, 3600000);
+}
+
 // --- API Fetchers (FinMind API - CORS Friendly open data) ---
 
 async function fetchData() {
@@ -60,6 +182,9 @@ async function fetchData() {
   if (taiexLoading) taiexLoading.classList.add('active');
   if (foreignLoading) foreignLoading.classList.add('active');
   
+  // Trigger dynamic sections sync
+  updateDynamicSections(true);
+
   try {
     // Parallel Fetching for Market Data & Foreign Investor Data
     const [taiexRes, foreignRes] = await Promise.all([
@@ -176,10 +301,27 @@ async function fetchData() {
       }
     }
 
-    // -- 3. Process Industry Data --
-    fetchIndustryPerformance();
+    // --- AI Recommendation Logic ---
+    const aiContainer = document.getElementById('aiSignalContainer');
+    if (aiContainer && taiexRawData.length > 0 && foreignRawData.length > 0) {
+      const latestTaiex = taiexRawData[taiexRawData.length - 1];
+      const latestForeign = foreignRawData[foreignRawData.length - 1];
+      const foreignSpread = latestForeign.buy - latestForeign.sell;
+      
+      let signalHTML = "";
+      if (latestTaiex.spread > 0 && foreignSpread > 0) {
+        signalHTML = `<div class="badge badge-red" style="font-size:0.875rem; padding:6px 12px; border: 1px solid hsla(0, 84%, 60%, 0.3);">📈 強烈建議做多 (大盤上漲且外資買超)</div>`;
+      } else if (latestTaiex.spread < 0 && foreignSpread < 0) {
+        signalHTML = `<div class="badge badge-green" style="font-size:0.875rem; padding:6px 12px; border: 1px solid hsla(142, 71%, 45%, 0.3);">📉 建議偏空操作 (大盤下跌且外資賣超)</div>`;
+      } else if (latestTaiex.spread > 0 && foreignSpread < 0) {
+        signalHTML = `<div class="badge badge-blue" style="font-size:0.875rem; padding:6px 12px;">⚖️ 中立偏多 (大盤抗跌，留意主力動向)</div>`;
+      } else {
+        signalHTML = `<div class="badge badge-blue" style="font-size:0.875rem; padding:6px 12px;">⚖️ 中立偏空 (大盤回檔，外資低接)</div>`;
+      }
+      aiContainer.innerHTML = signalHTML;
+    }
 
-    // Explicitly update time only when logic completes without throwing
+    // Explictly update time only when logic completes without throwing
     updateLastUpdatedTime();
 
   } catch (e) {
@@ -212,125 +354,6 @@ function renderTaiexChart() {
 }
 
 // --- Chart Draw Implementations ---
-
-// --- Foreign Range Logic ---
-function updateForeignRange(days) {
-  if (!foreignRawData || foreignRawData.length === 0) return;
-  
-  const filtered = foreignRawData.slice(-days);
-  const labels = filtered.map(item => item.date.slice(5).replace('-', '/'));
-  const data = filtered.map(item => (item.buy - item.sell) / 100000000);
-  
-  drawForeignChart(labels, data);
-}
-
-function initRangeFilters() {
-  const group = document.getElementById('foreignRangeGroup');
-  if (!group) return;
-
-  group.addEventListener('click', (e) => {
-    const btn = e.target.closest('.tab-btn');
-    if (!btn) return;
-
-    // UI Toggle
-    group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // Logic
-    const range = parseInt(btn.dataset.range);
-    updateForeignRange(range);
-  });
-}
-
-// --- Industry Performance Analysis ---
-async function fetchIndustryPerformance() {
-  const loading = document.getElementById('industryLoading');
-  const tbody = document.getElementById('industryBody');
-  
-  // Use a smaller date range for industry proxies
-  const d_ind = new Date();
-  d_ind.setDate(d_ind.getDate() - 14);
-  const indStartDate = d_ind.toISOString().split('T')[0];
-
-  const industries = [
-    { title: '半導體 (台積電)', id: '2330' },
-    { title: '電腦週邊 (鴻海)', id: '2317' },
-    { title: '航運業 (長榮)', id: '2603' },
-    { title: '觀光餐飲 (晶華)', id: '2707' },
-    { title: '電子通路 (大聯大)', id: '3702' }
-  ];
-
-  try {
-    // Parallel Fetch for Price & Institutional Movement (Stock-specific dataset)
-    const [priceData, instData] = await Promise.all([
-      Promise.all(industries.map(ind => 
-        fetch(`https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockPrice&data_id=${ind.id}&start_date=${indStartDate}`).then(res => res.json())
-      )),
-      Promise.all(industries.map(ind => 
-        fetch(`https://api.finmindtrade.com/api/v4/data?dataset=TaiwanStockInstitutionalInvestorsBuySell&data_id=${ind.id}&start_date=${indStartDate}`).then(res => res.json())
-      ))
-    ]);
-
-    const performance = industries.map((ind, i) => {
-      const pJson = priceData[i].data;
-      const iJson = instData[i].data;
-      
-      if (!pJson || pJson.length < 2) return null;
-      
-      const latestPrice = pJson[pJson.length - 1];
-      const prevPrice = pJson[pJson.length - 2];
-      const change = ((latestPrice.close - prevPrice.close) / prevPrice.close * 100);
-      const volume = latestPrice.Trading_money / 100000000; // Value in 億
-      
-      // Foreign Flow Calculation (InstitutionalInvestorsBuySell returns SHARES, need to convert to money value in 億)
-      let netFlow = 0;
-      if (iJson) {
-        const latestInst = iJson.filter(item => item.date === latestPrice.date && item.name === 'Foreign_Investor')[0];
-        if (latestInst) {
-          netFlow = ((latestInst.buy - latestInst.sell) * latestPrice.close) / 100000000; // Value in 億
-        }
-      }
-
-      return {
-        name: ind.title,
-        close: latestPrice.close.toLocaleString(undefined, {minimumFractionDigits: 1}),
-        change: change,
-        volume: volume,
-        netFlow: netFlow,
-        isUp: change >= 0
-      };
-    }).filter(p => p !== null);
-
-    // Sort by performance (Descending)
-    performance.sort((a, b) => b.change - a.change);
-
-    if (tbody) {
-      if (performance.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground));">暫無精選產業數據</td></tr>';
-      } else {
-        tbody.innerHTML = performance.map(p => `
-          <tr>
-            <td>${p.name}</td>
-            <td style="text-align: right;">${p.close}</td>
-            <td style="text-align: right;" class="${p.isUp ? 'text-red' : 'text-green'}">
-              ${p.isUp ? '▲' : '▼'} ${Math.abs(p.change).toFixed(2)}%
-            </td>
-            <td style="text-align: right;">${p.volume.toLocaleString(undefined, {maximumFractionDigits: 1})} 億</td>
-            <td style="text-align: right;" class="${p.netFlow >= 0 ? 'text-red' : 'text-green'}">
-              ${p.netFlow >= 0 ? '+' : ''}${p.netFlow.toFixed(1)} 億
-            </td>
-          </tr>
-        `).join('');
-      }
-    }
-  } catch (err) {
-    console.error("Industry fetch error:", err);
-    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: hsl(var(--market-up));">數據連線失敗</td></tr>';
-  } finally {
-    if (loading) loading.classList.remove('active');
-  }
-}
-
 function drawTaiexChart(labels, data) {
   const ctx = document.getElementById('taiexChart').getContext('2d');
   if(taiexChartInstance) taiexChartInstance.destroy();
@@ -406,6 +429,35 @@ function drawForeignChart(labels, data) {
   });
 }
 
+// --- Foreign Range Logic ---
+function updateForeignRange(days) {
+  if (!foreignRawData || foreignRawData.length === 0) return;
+  
+  const filtered = foreignRawData.slice(-days);
+  const labels = filtered.map(item => item.date.slice(5).replace('-', '/'));
+  const data = filtered.map(item => (item.buy - item.sell) / 100000000);
+  
+  drawForeignChart(labels, data);
+}
+
+function initRangeFilters() {
+  const group = document.getElementById('foreignRangeGroup');
+  if (!group) return;
+
+  group.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn) return;
+
+    // UI Toggle
+    group.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Logic
+    const range = parseInt(btn.dataset.range);
+    updateForeignRange(range);
+  });
+}
+
 // --- Tab Logic ---
 function initTabs() {
   const pttTabBtn = document.getElementById('pttTabBtn');
@@ -465,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initTooltips();
   initRangeFilters();
+  initHourlyTimer();
 
   const refreshBtn = document.getElementById('refreshBtn');
   if (refreshBtn) {

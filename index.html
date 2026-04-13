@@ -119,86 +119,62 @@
       
       <div class="card social-container flex-col">
         <div class="card-header row-between" style="flex-direction: row; align-items: center;">
-          <h4 class="card-title">社群輿情分析</h4>
+          <div class="flex-row gap-8" style="align-items: center;">
+            <h4 class="card-title">社群輿情分析</h4>
+            <span class="status-label" id="socialStatus">最後同步: --:--</span>
+          </div>
           <div class="button-group">
             <button class="tab-btn active" id="pttTabBtn">PTT Stock</button>
             <button class="tab-btn" id="dcardTabBtn">Dcard Stock</button>
           </div>
         </div>
         
-        <div class="card-content">
+        <div class="card-content" style="position: relative; min-height: 180px;">
+          <div class="loading-wrapper" id="socialLoading">
+            <div class="spinner"></div>
+          </div>
           <!-- PTT Tab Content -->
           <div class="tab-content ptt-summary active" id="pttContent">
-            <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">
-              近期中東局勢動盪使美股科技股走弱，連帶影響台股權值股表現。鄉民熱烈討論大盤力守三萬三千點關卡的防禦性，資金明顯由半導體流出，轉進重電、低軌衛星等傳產與政策受惠等防禦性族群，投資人情緒轉趨觀望。
-            </p>
-            <div class="flex-row gap-8" style="margin-top: 1.25rem;">
-              <div class="badge badge-red"><span>🔥</span>台積電</div>
-              <div class="badge badge-red"><span>🔥</span>重電</div>
-              <div class="badge badge-red"><span>🔥</span>低軌衛星</div>
-            </div>
+            <!-- Dynamically injected -->
           </div>
 
           <!-- Dcard Tab Content -->
           <div class="tab-content dcard-summary" id="dcardContent">
-            <p class="text-sm leading-relaxed" style="margin-bottom: 1rem;">
-              Dcard 近期討論度最高的莫過於台積電的法說會預期與美股財報週的聯動。許多年輕投資者對於半導體龍頭的回檔表示擔憂，但也有一派聲音認為現在是分批布局的好時機。此外，高股息 ETF 的成分股調整也是熱門話題。
-            </p>
-            <div class="flex-row gap-8" style="margin-top: 1.25rem;">
-              <div class="badge badge-red"><span>🔥</span>法說會</div>
-              <div class="badge badge-red"><span>🔥</span>高股息</div>
-              <div class="badge badge-red"><span>🔥</span>半導體</div>
-            </div>
+            <!-- Dynamically injected -->
+          </div>
+        </div>
+        
+        <div class="card-footer" style="padding: 16px 24px; border-top: 1px solid hsla(0, 0%, 100%, 0.1);">
+          <div class="text-sm text-muted" style="margin-bottom: 12px; font-weight: 500;">近 24 小時熱門討論標的</div>
+          <div class="flex-row gap-8" id="hotStocksContainer" style="flex-wrap: wrap;">
+            <!-- Dynamically injected -->
           </div>
         </div>
       </div>
 
       <div class="card news-container flex-col">
-        <div class="card-header flex-col gap-16">
-          <div class="card-header-actions">
-            <h4 class="card-title">市場情勢摘要</h4>
+        <div class="card-header row-between" style="flex-direction: row; align-items: center;">
+          <h4 class="card-title">市場情勢摘要</h4>
+          <span class="status-label" id="summaryStatus">最後同步: --:--</span>
+        </div>
+        <div class="card-content" style="position: relative; min-height: 180px;">
+          <div class="loading-wrapper" id="summaryLoading">
+            <div class="spinner"></div>
+          </div>
+          <div id="marketSummaryContent">
+            <!-- Dynamically injected -->
           </div>
         </div>
-        <div class="card-content">
-          <p class="card-description leading-relaxed text-base" style="color: hsl(var(--foreground));">
-            以 2026 年 3 月底最新盤勢分析，台股大盤目前正試圖在三萬三千點 (33,000) 高檔區間建立支撐。受到近期國際地緣政治與美股科技類股震盪拖累，扮演穩盤重心的權值雙雄（台積電、鴻海）承受了較大的外資調節賣壓。<br><br>
-            然而，最新市場籌碼數據顯示，避險資金正迅速進行產業輪動，包括低軌衛星、塑化原物料以及受惠於政府強韌電網政策的重電族群，成為了短線資金停泊的首選。法人指出，投資人現階段應以「居高思危」為操作原則，靜待接下來的財報效應落定。
-          </p>
-          <div class="flex-row gap-8" style="margin-top: 1.25rem;">
-            <div class="badge badge-blue">居高思危</div>
-            <div class="badge badge-blue">財報效應</div>
-            <div class="badge badge-blue">強韌電網</div>
+        
+        <div class="card-footer" style="padding: 16px 24px; border-top: 1px solid hsla(0, 0%, 100%, 0.1);">
+          <div class="text-sm text-muted" style="margin-bottom: 12px; font-weight: 500;">綜合趨勢建議 (AI 分析)</div>
+          <div class="flex-row gap-8" id="aiSignalContainer" style="flex-wrap: wrap;">
+            <!-- Dynamically injected -->
           </div>
-        </div>
-      </div>
-
-    <section class="animate-slide-up stagger-3">
-      <div class="card industry-container flex-col">
-        <div class="card-header">
-          <h4 class="card-title">股市題材與資金流向</h4>
-        </div>
-        <div class="card-content">
-          <div class="loading-wrapper active" id="industryLoading">
-            <div class="skeleton skeleton-text" style="height: 151px;"></div>
-          </div>
-          <table class="industry-table" id="industryTable">
-            <thead>
-              <tr>
-                <th>產業類別</th>
-                <th style="text-align: right;">今日收盤</th>
-                <th style="text-align: right;">總漲跌幅百分比</th>
-                <th style="text-align: right;">成交量 (億)</th>
-                <th style="text-align: right;">買超或賣超 (億)</th>
-              </tr>
-            </thead>
-            <tbody id="industryBody">
-              <!-- Dynamically populated -->
-              <tr><td colspan="5" style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground));">資料載入中...</td></tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </section>
+
 
   </main>
   
